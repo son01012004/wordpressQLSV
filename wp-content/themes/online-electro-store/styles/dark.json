@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "title": "Dark",
+  "version": 2,
+  "settings": {
+    "color": {
+        "palette": [
+            {
+              "slug": "background",
+              "color": "#000000",
+              "name": "Background"
+            },
+            {
+              "slug": "primary",
+              "color": "#F02548",
+              "name": "Primary"
+            },
+            {
+              "slug": "primary-light",
+              "color": "#e8f2ff",
+              "name": "Primary Light"
+            },
+            {
+              "slug": "border-color",
+              "color": "#5b5858",
+              "name": "Border Color"
+            },
+            {
+              "slug": "heading",
+              "color": "#f9f9ff",
+              "name": "Heading"
+            },
+            {
+              "slug": "body-text",
+              "color": "#babac4",
+              "name": "Body Text"
+            },
+            {
+              "slug": "color-light",
+              "color": "#E9F3FF",
+              "name": "Color Light"
+            },
+            {
+              "slug": "footer-bg",
+              "color": "#F8F9FA",
+              "name": "Footer Bg"
+            },
+            {
+              "slug": "color-1",
+              "color": "#0F0F0F",
+              "name": "Color 1"
+            },
+            {
+              "slug": "color-2",
+              "color": "#3A383C",
+              "name": "Color 2"
+            },
+            {
+              "slug": "tertiary-text-color",
+              "color": "#f6f7fa",
+              "name": "Tertiary Text Color"
+            },
+            {
+              "slug": "tertiary-bg-color",
+              "color": "#141414",
+              "name": "Tertiary Bg Color"
+            },
+            {
+              "slug": "foreground",
+              "color": "#ffffff",
+              "name": "Foreground"
+            }
+        ]
+    }
+  }
+}
