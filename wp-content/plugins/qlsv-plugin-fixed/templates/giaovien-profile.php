@@ -1,267 +1,219 @@
 <?php
 /**
- * Template hiển thị thông tin chi tiết giáo viên
- *
+ * Template hiển thị thông tin giáo viên
+ * 
  * @package QLSV
  */
 
-// Ngăn chặn truy cập trực tiếp
-if (!defined('WPINC')) {
-    die;
+// Kiểm tra tồn tại biến
+if (!isset($teacher) || !isset($ma_gv) || !isset($hinh_anh_url)) {
+    return;
 }
 ?>
 
 <div class="giaovien-profile-container">
+    <h2><?php echo esc_html($teacher->display_name); ?></h2>
+    
     <div class="giaovien-profile-header">
         <div class="giaovien-profile-avatar">
-            <?php if (!empty($hinh_anh)) : ?>
-                <?php 
-                // Kiểm tra xem $hinh_anh có phải là ID hình ảnh hay là array
-                if (is_numeric($hinh_anh)) {
-                    $img_url = wp_get_attachment_image_url($hinh_anh, 'medium');
-                    if ($img_url) {
-                        $img_url = $img_url . (isset($cache_bust) ? $cache_bust : '');
-                    }
-                } else if (is_array($hinh_anh) && isset($hinh_anh['url'])) {
-                    $img_url = $hinh_anh['url'] . (isset($cache_bust) ? $cache_bust : '');
-                }
-                
-                if (!empty($img_url)) {
-                    ?>
-                    <img src="<?php echo esc_url($img_url); ?>" alt="<?php echo esc_attr($teacher->display_name); ?>">
-                    <?php
-                } else {
-                    ?>
-                    <div class="giaovien-avatar-placeholder">
-                        <span><?php echo substr($teacher->display_name, 0, 1); ?></span>
-                    </div>
-                    <?php
-                }
-                ?>
+            <?php if ($hinh_anh_url) : ?>
+                <img src="<?php echo esc_url($hinh_anh_url); ?>" alt="<?php echo esc_attr($teacher->display_name); ?>" class="avatar">
             <?php else : ?>
-                <div class="giaovien-avatar-placeholder">
-                    <span><?php echo substr($teacher->display_name, 0, 1); ?></span>
-                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="50" fill="#2575fc"/>
+                    <path d="M50,20 C58.8,20 66,27.2 66,36 C66,44.8 58.8,52 50,52 C41.2,52 34,44.8 34,36 C34,27.2 41.2,20 50,20 Z M50,58 C67.7,58 82,72.3 82,90.3 L82,92 C82,93.1 81.1,94 80,94 L20,94 C18.9,94 18,93.1 18,92 L18,90.3 C18,72.3 32.3,58 50,58 Z" fill="white"/>
+                </svg>
             <?php endif; ?>
         </div>
-
-        <div class="giaovien-profile-details">
-            <h1 class="giaovien-profile-name">
-                <?php echo esc_html(!empty($hoc_vi) ? $hoc_vi . ' ' : ''); ?>
-                <?php echo esc_html($teacher->display_name); ?>
-            </h1>
-            
-            <?php if (!empty($khoa)) : ?>
-                <div class="giaovien-profile-department">
-                    <i class="dashicons dashicons-building"></i>
-                    <?php echo esc_html($khoa); ?>
-                </div>
-            <?php endif; ?>
-            
-            <?php if (!empty($ma_gv)) : ?>
-                <div class="giaovien-profile-id">
-                    <i class="dashicons dashicons-id"></i>
-                    <?php echo esc_html__('Mã giảng viên: ', 'qlsv') . esc_html($ma_gv); ?>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <div class="giaovien-profile-body">
-        <div class="giaovien-profile-section">
-            <h3 class="giaovien-section-title"><?php esc_html_e('Thông tin liên hệ', 'qlsv'); ?></h3>
-            
-            <div class="giaovien-contact-info">
-                <?php if (!empty($email_gv)) : ?>
-                    <div class="giaovien-contact-item">
-                        <i class="dashicons dashicons-email"></i>
-                        <span><?php echo esc_html($email_gv); ?></span>
-                    </div>
-                <?php else : ?>
-                    <div class="giaovien-contact-item">
-                        <i class="dashicons dashicons-email"></i>
-                        <span><?php echo esc_html($teacher->user_email); ?></span>
-                    </div>
-                <?php endif; ?>
-                
-                <?php if (!empty($sdt)) : ?>
-                    <div class="giaovien-contact-item">
-                        <i class="dashicons dashicons-phone"></i>
-                        <span><?php echo esc_html($sdt); ?></span>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <?php if (!empty($chuyen_mon)) : ?>
-            <div class="giaovien-profile-section">
-                <h3 class="giaovien-section-title"><?php esc_html_e('Chuyên môn', 'qlsv'); ?></h3>
-                <div class="giaovien-speciality-content">
-                    <?php echo esc_html($chuyen_mon); ?>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <?php if (!empty($gioi_thieu)) : ?>
-            <div class="giaovien-profile-section">
-                <h3 class="giaovien-section-title"><?php esc_html_e('Giới thiệu', 'qlsv'); ?></h3>
-                <div class="giaovien-bio-content">
-                    <?php echo wpautop($gioi_thieu); ?>
-                </div>
-            </div>
-        <?php endif; ?>
         
-        <div class="giaovien-profile-section">
-            <h3 class="giaovien-section-title"><?php esc_html_e('Lịch giảng dạy', 'qlsv'); ?></h3>
+        <div class="giaovien-info-preview">
+            <?php if ($hoc_vi) : ?>
+                <div class="giaovien-hoc-vi"><?php echo esc_html($hoc_vi); ?></div>
+            <?php endif; ?>
             
-            <div class="giaovien-schedule-content">
-                <?php echo do_shortcode('[qlsv_thoikhoabieu giang_vien="' . $teacher->ID . '"]'); ?>
-            </div>
+            <?php if ($ma_gv) : ?>
+                <div class="giaovien-ma">
+                    <span class="label"><?php _e('Mã giáo viên:', 'qlsv'); ?></span>
+                    <span class="value"><?php echo esc_html($ma_gv); ?></span>
+                </div>
+            <?php endif; ?>
+            
+            <?php if ($khoa) : ?>
+                <div class="giaovien-khoa">
+                    <span class="label"><?php _e('Khoa:', 'qlsv'); ?></span>
+                    <span class="value"><?php echo esc_html($khoa); ?></span>
+                </div>
+            <?php endif; ?>
+            
+            <?php if ($chuyen_mon) : ?>
+                <div class="giaovien-chuyen-mon">
+                    <span class="label"><?php _e('Chuyên môn:', 'qlsv'); ?></span>
+                    <span class="value"><?php echo esc_html($chuyen_mon); ?></span>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
     
-    <div class="giaovien-profile-footer">
-        <a href="javascript:history.back();" class="giaovien-back-btn">
-            <i class="dashicons dashicons-arrow-left-alt"></i>
-            <?php esc_html_e('Quay lại', 'qlsv'); ?>
-        </a>
+    <div class="giaovien-profile-content">
+        <div class="giaovien-profile-section">
+            <h3><?php _e('Thông tin liên hệ', 'qlsv'); ?></h3>
+            <table class="giaovien-contact-table">
+                <?php if ($email_gv) : ?>
+                <tr>
+                    <th><?php _e('Email:', 'qlsv'); ?></th>
+                    <td><a href="mailto:<?php echo esc_attr($email_gv); ?>"><?php echo esc_html($email_gv); ?></a></td>
+                </tr>
+                <?php endif; ?>
+                
+                <?php if ($sdt) : ?>
+                <tr>
+                    <th><?php _e('Số điện thoại:', 'qlsv'); ?></th>
+                    <td><?php echo esc_html($sdt); ?></td>
+                </tr>
+                <?php endif; ?>
+            </table>
+        </div>
+        
+        <?php if ($gioi_thieu) : ?>
+        <div class="giaovien-profile-section">
+            <h3><?php _e('Giới thiệu', 'qlsv'); ?></h3>
+            <div class="giaovien-gioi-thieu">
+                <?php echo wpautop(esc_html($gioi_thieu)); ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 
 <style>
-    .giaovien-profile-container {
-        margin-bottom: 30px;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    }
+.giaovien-profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    overflow: hidden;
+}
+
+.giaovien-profile-container h2 {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.giaovien-profile-header {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.giaovien-profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 30px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.giaovien-profile-avatar img.avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.giaovien-profile-avatar svg {
+    width: 100%;
+    height: 100%;
+}
+
+.giaovien-info-preview {
+    flex-grow: 1;
+}
+
+.giaovien-hoc-vi {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.giaovien-ma, .giaovien-khoa, .giaovien-chuyen-mon {
+    margin-bottom: 8px;
+}
+
+.giaovien-ma .label, .giaovien-khoa .label, .giaovien-chuyen-mon .label {
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.giaovien-profile-section {
+    margin-bottom: 25px;
+}
+
+.giaovien-profile-section h3 {
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.giaovien-contact-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.giaovien-contact-table th, .giaovien-contact-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+}
+
+.giaovien-contact-table th {
+    width: 30%;
+    font-weight: 600;
+}
+
+.giaovien-gioi-thieu {
+    line-height: 1.6;
+}
+
+/* Styling for the avatar upload form */
+.avatar-upload-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 15px;
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
     .giaovien-profile-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 30px;
-        padding: 20px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        flex-direction: column;
     }
+    
     .giaovien-profile-avatar {
-        width: 120px;
-        height: 120px;
-        margin-right: 25px;
-        border-radius: 50%;
-        overflow: hidden;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-        flex-shrink: 0;
-    }
-    .giaovien-profile-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .giaovien-avatar-placeholder {
-        width: 100%;
-        height: 100%;
-        background-color: #0073aa;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 48px;
-        font-weight: bold;
-    }
-    .giaovien-profile-details {
-        flex-grow: 1;
-    }
-    .giaovien-profile-name {
-        margin: 0 0 10px;
-        font-size: 28px;
-        color: #333;
-    }
-    .giaovien-profile-department,
-    .giaovien-profile-id {
-        display: flex;
-        align-items: center;
-        font-size: 16px;
-        color: #666;
-        margin-top: 5px;
-    }
-    .giaovien-profile-department i,
-    .giaovien-profile-id i {
-        margin-right: 8px;
-    }
-    
-    .giaovien-profile-body {
         margin-bottom: 20px;
     }
-    .giaovien-profile-section {
-        background: #fff;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .giaovien-section-title {
-        margin-top: 0;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
-        color: #0073aa;
-    }
-    .giaovien-contact-info {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-    .giaovien-contact-item {
-        display: flex;
-        align-items: center;
-        margin-right: 20px;
-    }
-    .giaovien-contact-item i {
-        margin-right: 8px;
-        color: #0073aa;
-    }
-    .giaovien-speciality-content,
-    .giaovien-bio-content {
-        color: #444;
-        line-height: 1.6;
-    }
-    .giaovien-schedule-content {
-        margin-top: 10px;
-    }
-    
-    .giaovien-profile-footer {
-        padding: 10px 0;
-    }
-    .giaovien-back-btn {
-        display: inline-flex;
-        align-items: center;
-        padding: 8px 16px;
-        background: #f0f0f0;
-        color: #333;
-        text-decoration: none;
-        border-radius: 4px;
-        transition: background 0.2s;
-    }
-    .giaovien-back-btn i {
-        margin-right: 5px;
-    }
-    .giaovien-back-btn:hover {
-        background: #e0e0e0;
-        color: #0073aa;
-        text-decoration: none;
-    }
-    
-    @media (max-width: 768px) {
-        .giaovien-profile-header {
-            flex-direction: column;
-            text-align: center;
-        }
-        .giaovien-profile-avatar {
-            margin-right: 0;
-            margin-bottom: 15px;
-        }
-        .giaovien-profile-department,
-        .giaovien-profile-id {
-            justify-content: center;
-        }
-    }
+}
 </style> 

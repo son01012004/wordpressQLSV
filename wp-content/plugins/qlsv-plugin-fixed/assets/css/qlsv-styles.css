@@ -1,0 +1,128 @@
+/**
+ * Styles cho plugin QLSV
+ */
+
+/* Styles cho thông tin sinh viên */
+.thong-tin-sinh-vien-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.sinh-vien-header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+}
+
+.sinh-vien-anh {
+    width: 100px !important;
+    height: 100px !important;
+    border-radius: 50% !important;
+    overflow: hidden;
+    margin-right: 20px;
+    flex-shrink: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+.sinh-vien-anh img, .sinh-vien-anh .avatar {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    border-radius: 50% !important;
+}
+
+.sinh-vien-ten {
+    margin: 0;
+    font-size: 24px;
+    flex-grow: 1;
+}
+
+/* Form upload avatar */
+.avatar-upload-container {
+    margin: 20px 0;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    display: none;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 15px;
+    position: relative;
+    border: 3px solid #f0f0f0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-preview img, .avatar-preview .avatar {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    border-radius: 50% !important;
+}
+
+.avatar-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.avatar-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    justify-content: center;
+}
+
+.file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.file-input-wrapper input[type=file] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+/* Thông báo */
+.qlsv-notice {
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid #ddd;
+    background: #f8f8f8;
+}
+
+.qlsv-notice-success {
+    border-left-color: #46b450;
+    background: #ecf7ed;
+} 

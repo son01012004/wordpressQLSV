@@ -58,11 +58,6 @@ if (!$is_student) {
     <h1 class="qlsv-page-title"><?php esc_html_e('Bảng điểm', 'qlsv'); ?></h1>
     
     <?php
-    // Hiển thị thông báo trang đang sử dụng phiên bản nhẹ
-    echo '<div class="notice notice-info" style="padding: 15px; background-color: #e7f5ff; border-left: 4px solid #0073aa; margin-bottom: 20px; border-radius: 4px;">
-        <p><strong>Thông báo:</strong> Đang sử dụng phiên bản tối ưu hiển thị bảng điểm.</p>
-    </div>';
-    
     // Lấy tham số tìm kiếm từ URL với GET parameters trực tiếp
     $selected_student = isset($_GET['sinhvien']) ? intval($_GET['sinhvien']) : 0;
     $selected_course = isset($_GET['monhoc']) ? intval($_GET['monhoc']) : 0;
@@ -186,7 +181,7 @@ if (!$is_student) {
         // Hiển thị kết quả sử dụng shortcode 
         echo do_shortcode('[qlsv_bang_diem_lite sinhvien_id="' . $selected_student . '" monhoc_id="' . $selected_course . '" lop_id="' . $selected_class . '" page="' . $diem_page . '"]');
     } 
-    // Trường hợp khác
+    // Trường hợp khác (không phải sinh viên, admin hoặc giáo viên)
     else {
         ?>
         <div class="qlsv-thong-bao">
@@ -331,6 +326,11 @@ if (!$is_student) {
         flex-shrink: 0;
         display: block !important;
         visibility: visible !important;
+    }
+    
+    .qlsv-notice-info {
+        background-color: #e7f5ff !important;
+        border-left: 4px solid #0073aa !important;
     }
 </style>
 

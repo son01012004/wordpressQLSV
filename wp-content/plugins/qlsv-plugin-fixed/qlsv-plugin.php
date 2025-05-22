@@ -548,4 +548,43 @@ function qlsv_login_shortcode() {
     
     return $output;
 }
-add_shortcode('qlsv_login_form', 'qlsv_login_shortcode'); 
+add_shortcode('qlsv_login_form', 'qlsv_login_shortcode');
+
+// Thêm CSS styles từ file mới tạo
+function qlsv_enqueue_scripts() {
+    // Đăng ký CSS để hiển thị form điểm cho sinh viên
+    wp_enqueue_style('qlsv-styles', plugin_dir_url(__FILE__) . 'assets/css/qlsv-styles.css', array(), QLSV_VERSION);
+    
+    // Đăng ký JS
+    wp_enqueue_script('qlsv-script', plugin_dir_url(__FILE__) . 'assets/js/qlsv-script.js', array('jquery'), QLSV_VERSION, true);
+}
+add_action('wp_enqueue_scripts', 'qlsv_enqueue_scripts');
+
+// Đăng ký route cho avatar placeholder
+function qlsv_register_avatar_placeholder() {
+    add_rewrite_rule(
+        'qlsv-avatar-placeholder/?$',
+        'index.php?qlsv_avatar_placeholder=1',
+        'top'
+    );
+}
+add_action('init', 'qlsv_register_avatar_placeholder');
+
+// Thêm query var
+function qlsv_query_vars($vars) {
+    $vars[] = 'qlsv_avatar_placeholder';
+    return $vars;
+}
+add_filter('query_vars', 'qlsv_query_vars');
+
+// Xử lý template cho avatar placeholder
+function qlsv_template_include($template) {
+    if (get_query_var('qlsv_avatar_placeholder') == 1) {
+        $placeholder_template = QLSV_PLUGIN_DIR . 'templates/avatar-placeholder.php';
+        if (file_exists($placeholder_template)) {
+            return $placeholder_template;
+        }
+    }
+    return $template;
+}
+add_filter('template_include', 'qlsv_template_include'); 

@@ -856,8 +856,8 @@ class QLSV_Diem_Lite {
             $is_student = ($student_id !== false);
         }
         
-        // Nếu là sinh viên và không phải admin/giáo viên, chỉ cho xem điểm của mình
-        if ($is_student && !$is_admin && !$is_teacher) {
+        // Nếu là sinh viên, chỉ cho xem điểm của mình
+        if ($is_student) {
             if (!isset($student_id)) {
                 $student_id = $this->is_student_by_email($current_user->user_email);
             }
@@ -908,7 +908,7 @@ class QLSV_Diem_Lite {
             }
         }
         
-        // Chỉ admin và giáo viên mới có thể sử dụng form tìm kiếm
+        // Cho phép cả admin và giáo viên sử dụng form tìm kiếm
         if ($is_admin || $is_teacher) {
             // Khởi tạo output buffer
             ob_start();

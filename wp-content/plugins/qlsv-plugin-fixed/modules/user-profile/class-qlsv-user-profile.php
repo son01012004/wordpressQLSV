@@ -154,8 +154,21 @@ class QLSV_User_Profile {
             // Dữ liệu cho template
             $teacher = $user;
             
+            // Kiểm tra file avatar từ thư mục trong plugin
+            $avatar_filename = get_user_meta($user->ID, 'qlsv_avatar_file', true);
+            if ($avatar_filename) {
+                $avatar_url = plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/avatars/' . $avatar_filename;
+                $hinh_anh_url = $avatar_url . $cache_bust;
+            } 
+            // Nếu không có, sử dụng attachment ID
+            else if ($hinh_anh) {
+                $hinh_anh_url = wp_get_attachment_image_url($hinh_anh, 'medium') . $cache_bust;
+            } else {
+                $hinh_anh_url = '';
+            }
+            
             // Trích xuất các biến để sử dụng trong template
-            extract(compact('teacher', 'ma_gv', 'hoc_vi', 'khoa', 'chuyen_mon', 'sdt', 'email_gv', 'hinh_anh', 'gioi_thieu', 'cache_bust'));
+            extract(compact('teacher', 'ma_gv', 'hoc_vi', 'khoa', 'chuyen_mon', 'sdt', 'email_gv', 'hinh_anh', 'hinh_anh_url', 'gioi_thieu', 'cache_bust'));
             
             ob_start();
             include $template_path;
@@ -180,19 +193,39 @@ class QLSV_User_Profile {
                 // Form upload avatar (sẽ được ẩn ban đầu và hiển thị khi click vào avatar)
                 $avatar_form = $this->get_teacher_avatar_form($user, $hinh_anh);
                 
-                // Thông báo upload thành công
+                // Hiển thị thông báo khi upload thành công
                 $success_notice = '';
                 if (isset($_GET['avatar_updated']) && $_GET['avatar_updated'] == '1') {
                     $success_notice = '<div class="qlsv-notice qlsv-notice-success">
                         <p>' . __('Cập nhật ảnh đại diện thành công!', 'qlsv') . '</p>
                     </div>';
                     
-                    // Thêm JavaScript để reload trang sau 2 giây
-                    $success_notice .= '<script>
+                    // Thêm JavaScript để buộc tải lại ảnh
+                    $output .= '<script>
                         if (window.location.href.indexOf("avatar_updated=1") > -1) {
+                            // Xóa cache các ảnh
+                            var timestamp = new Date().getTime();
+                            
+                            // Cập nhật tất cả ảnh để tránh cache
+                            var images = document.querySelectorAll("img.avatar, .sinh-vien-anh img, .giaovien-profile-avatar img, .avatar-preview img");
+                            for (var i = 0; i < images.length; i++) {
+                                var img = images[i];
+                                var currentSrc = img.getAttribute("src");
+                                
+                                if (currentSrc) {
+                                    // Thêm hoặc cập nhật timestamp
+                                    if (currentSrc.indexOf("?") > -1) {
+                                        img.setAttribute("src", currentSrc.split("?")[0] + "?v=" + timestamp);
+                                    } else {
+                                        img.setAttribute("src", currentSrc + "?v=" + timestamp);
+                                    }
+                                }
+                            }
+                            
+                            // Reload trang sau 1 giây để hiển thị ảnh mới nhất
                             setTimeout(function() {
-                                window.location.href = window.location.href.split("?")[0];
-                            }, 2000);
+                                window.location.href = window.location.href.replace("avatar_updated=1", "");
+                            }, 1000);
                         }
                     </script>';
                 }
@@ -280,10 +313,17 @@ class QLSV_User_Profile {
             $ten_lop = get_the_title($lop_id);
         }
         
-        // Lấy URL ảnh
-        $anh_url = '';
+        // Lấy ảnh đại diện
         $anh_html = '';
-        if ($anh_id) {
+        
+        // Kiểm tra file avatar từ thư mục trong plugin
+        $avatar_filename = get_user_meta($user->ID, 'qlsv_avatar_file', true);
+        if ($avatar_filename) {
+            $avatar_url = plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/avatars/' . $avatar_filename;
+            $anh_html = '<div class="sinh-vien-anh"><img src="' . esc_url($avatar_url . $cache_bust) . '" alt="' . esc_attr($ho_ten) . '"></div>';
+        } 
+        // Nếu không có, kiểm tra attachment ID
+        else if ($anh_id) {
             $anh_url = wp_get_attachment_image_url($anh_id, 'medium');
             if ($anh_url) {
                 $anh_url = $anh_url . $cache_bust;
@@ -291,16 +331,22 @@ class QLSV_User_Profile {
             }
         }
         
+        // Nếu không có ảnh, sử dụng ảnh mặc định
+        if (empty($anh_html)) {
+            // Nhúng SVG trực tiếp vào HTML
+            $svg_code = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="50" fill="#2575fc"/>
+                <path d="M50,20 C58.8,20 66,27.2 66,36 C66,44.8 58.8,52 50,52 C41.2,52 34,44.8 34,36 C34,27.2 41.2,20 50,20 Z M50,58 C67.7,58 82,72.3 82,90.3 L82,92 C82,93.1 81.1,94 80,94 L20,94 C18.9,94 18,93.1 18,92 L18,90.3 C18,72.3 32.3,58 50,58 Z" fill="white"/>
+            </svg>';
+            $anh_html = '<div class="sinh-vien-anh" style="background-color: transparent;">' . $svg_code . '</div>';
+        }
+        
         // Tạo output
         $output = '<div class="thong-tin-sinh-vien-container">';
         
         // Phần header với ảnh và tên
         $output .= '<div class="sinh-vien-header">';
-        if ($anh_html) {
-            $output .= $anh_html;
-        } else {
-            $output .= '<div class="sinh-vien-anh placeholder"><i class="dashicons dashicons-admin-users"></i></div>';
-        }
+        $output .= $anh_html;
         $output .= '<h3 class="sinh-vien-ten">' . esc_html($ho_ten) . '</h3>';
         if ($trang_thai) {
             $output .= '<div class="sinh-vien-trang-thai">' . esc_html($trang_thai) . '</div>';
@@ -309,7 +355,7 @@ class QLSV_User_Profile {
         
         // Form upload avatar (chỉ hiển thị cho người dùng đang xem thông tin của chính họ)
         if ($user->ID == get_current_user_id()) {
-            // Đặt form upload avatar ở đây nhưng nó sẽ ẩn đi ban đầu (CSS display: none được thiết lập trong enqueue_scripts)
+            // Đặt form upload avatar ở đây nhưng nó sẽ ẩn đi ban đầu
             $output .= $this->get_student_avatar_form($user, $post_id, $anh_id);
             
             // Hiển thị thông báo khi upload thành công
@@ -318,12 +364,32 @@ class QLSV_User_Profile {
                     <p>' . __('Cập nhật ảnh đại diện thành công!', 'qlsv') . '</p>
                 </div>';
                 
-                // Thêm JavaScript để reload trang sau 2 giây để cập nhật ảnh đại diện
+                // Thêm JavaScript để buộc tải lại ảnh
                 $output .= '<script>
                     if (window.location.href.indexOf("avatar_updated=1") > -1) {
+                        // Xóa cache các ảnh
+                        var timestamp = new Date().getTime();
+                        
+                        // Cập nhật tất cả ảnh để tránh cache
+                        var images = document.querySelectorAll("img.avatar, .sinh-vien-anh img, .giaovien-profile-avatar img, .avatar-preview img");
+                        for (var i = 0; i < images.length; i++) {
+                            var img = images[i];
+                            var currentSrc = img.getAttribute("src");
+                            
+                            if (currentSrc) {
+                                // Thêm hoặc cập nhật timestamp
+                                if (currentSrc.indexOf("?") > -1) {
+                                    img.setAttribute("src", currentSrc.split("?")[0] + "?v=" + timestamp);
+                                } else {
+                                    img.setAttribute("src", currentSrc + "?v=" + timestamp);
+                                }
+                            }
+                        }
+                        
+                        // Reload trang sau 1 giây để hiển thị ảnh mới nhất
                         setTimeout(function() {
-                            window.location.href = window.location.href.split("?")[0];
-                        }, 2000);
+                            window.location.href = window.location.href.replace("avatar_updated=1", "");
+                        }, 1000);
                     }
                 </script>';
             }
@@ -394,7 +460,21 @@ class QLSV_User_Profile {
         
         // Thêm nút xem bảng điểm
         $output .= '<div class="sinh-vien-actions">';
-        $output .= '<a href="' . esc_url(home_url('/diem/?sinhvien=' . $post_id)) . '" class="button button-primary">Xem bảng điểm</a>';
+
+        // Lấy thông tin người dùng hiện tại
+        $current_user = wp_get_current_user();
+        $user_roles = $current_user->roles;
+
+        // Kiểm tra vai trò người dùng
+        $is_admin = in_array('administrator', $user_roles);
+        $is_teacher = in_array('giaovien', $user_roles);
+        $is_student = in_array('student', $user_roles) || $this->is_student_by_email($current_user->user_email);
+
+        // Chỉ hiển thị nút xem bảng điểm cho sinh viên và giáo viên, không hiển thị cho admin
+        if (!$is_admin || $is_teacher) {
+            $output .= '<a href="' . esc_url(home_url('/diem/?sinhvien=' . $post_id)) . '" class="button button-primary">Xem bảng điểm</a>';
+        }
+
         $output .= '</div>';
         
         $output .= '</div>';
@@ -422,12 +502,32 @@ class QLSV_User_Profile {
                 <p>' . __('Cập nhật ảnh đại diện thành công!', 'qlsv') . '</p>
             </div>';
             
-            // Thêm JavaScript để reload trang sau 2 giây để cập nhật ảnh đại diện
+            // Thêm JavaScript để buộc tải lại ảnh
             $output .= '<script>
                 if (window.location.href.indexOf("avatar_updated=1") > -1) {
+                    // Xóa cache các ảnh
+                    var timestamp = new Date().getTime();
+                    
+                    // Cập nhật tất cả ảnh để tránh cache
+                    var images = document.querySelectorAll("img.avatar, .sinh-vien-anh img, .giaovien-profile-avatar img, .avatar-preview img");
+                    for (var i = 0; i < images.length; i++) {
+                        var img = images[i];
+                        var currentSrc = img.getAttribute("src");
+                        
+                        if (currentSrc) {
+                            // Thêm hoặc cập nhật timestamp
+                            if (currentSrc.indexOf("?") > -1) {
+                                img.setAttribute("src", currentSrc.split("?")[0] + "?v=" + timestamp);
+                            } else {
+                                img.setAttribute("src", currentSrc + "?v=" + timestamp);
+                            }
+                        }
+                    }
+                    
+                    // Reload trang sau 1 giây để hiển thị ảnh mới nhất
                     setTimeout(function() {
-                        window.location.href = window.location.href.split("?")[0];
-                    }, 2000);
+                        window.location.href = window.location.href.replace("avatar_updated=1", "");
+                    }, 1000);
                 }
             </script>';
         }
@@ -435,7 +535,14 @@ class QLSV_User_Profile {
         $output .= '<div class="qlsv-user-info">';
         $output .= '<div class="qlsv-user-avatar">';
         
-        if ($avatar_id) {
+        // Kiểm tra file avatar từ thư mục trong plugin
+        $avatar_filename = get_user_meta($user->ID, 'qlsv_avatar_file', true);
+        if ($avatar_filename) {
+            $avatar_url = plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/avatars/' . $avatar_filename;
+            $output .= '<img src="' . esc_url($avatar_url . $cache_bust) . '" alt="Avatar" class="avatar">';
+        }
+        // Nếu không có, kiểm tra attachment ID
+        else if ($avatar_id) {
             $img_url = wp_get_attachment_image_url($avatar_id, 'thumbnail');
             if ($img_url) {
                 $output .= '<img src="' . esc_url($img_url . $cache_bust) . '" alt="Avatar" class="avatar">';
@@ -553,27 +660,45 @@ class QLSV_User_Profile {
                 flex-wrap: wrap;
             }
             .sinh-vien-anh {
-                width: 100px;
-                height: 100px;
-                border-radius: 50%;
+                width: 100px !important;
+                height: 100px !important;
+                border-radius: 50% !important;
                 overflow: hidden;
                 margin-right: 20px;
                 flex-shrink: 0;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                position: relative;
             }
-            .sinh-vien-anh img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
+            .sinh-vien-anh img, .sinh-vien-anh .avatar {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                display: block !important;
+                border-radius: 50% !important;
             }
-            .sinh-vien-anh.placeholder {
-                background-color: #f1f1f1;
+            .sinh-vien-anh::after {
+                content: "\\f332"; /* camera icon */
+                font-family: dashicons;
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                background: rgba(0, 115, 170, 0.8);
+                color: white;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: #777;
+                font-size: 18px;
+                opacity: 0;
+                transition: opacity 0.3s;
             }
-            .sinh-vien-anh.placeholder i {
-                font-size: 40px;
+            .sinh-vien-anh:hover::after {
+                opacity: 1;
             }
             .sinh-vien-ten {
                 margin: 0;
@@ -624,12 +749,7 @@ class QLSV_User_Profile {
                 padding: 20px;
                 border-radius: 8px;
                 text-align: center;
-            }
-            .avatar-upload-container h3 {
-                margin-top: 0;
-                margin-bottom: 15px;
-                color: #333;
-                font-size: 18px;
+                display: none;
             }
             .avatar-preview {
                 width: 150px;
@@ -640,21 +760,35 @@ class QLSV_User_Profile {
                 position: relative;
                 border: 3px solid #f0f0f0;
                 background: #fff;
+                cursor: pointer;
             }
-            .avatar-preview img {
+            .avatar-preview img, .avatar-preview .avatar {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+                border-radius: 50%;
+                display: block;
             }
-            .avatar-preview .no-avatar {
-                width: 100%;
-                height: 100%;
+            .avatar-preview::after {
+                content: "\\f332"; /* camera icon */
+                font-family: dashicons;
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                background: rgba(0, 115, 170, 0.8);
+                color: white;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background: #f5f5f5;
-                color: #777;
-                font-size: 40px;
+                font-size: 18px;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+            .avatar-preview:hover::after {
+                opacity: 1;
             }
             .avatar-actions {
                 display: flex;
@@ -668,6 +802,26 @@ class QLSV_User_Profile {
             }
             .avatar-actions .button {
                 padding: 8px 20px;
+            }
+            .avatar-buttons {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+                justify-content: center;
+            }
+            .file-input-wrapper {
+                position: relative;
+                overflow: hidden;
+                display: inline-block;
+            }
+            .file-input-wrapper input[type=file] {
+                position: absolute;
+                left: 0;
+                top: 0;
+                opacity: 0;
+                width: 100%;
+                height: 100%;
+                cursor: pointer;
             }
             
             /* Thông báo */
@@ -818,14 +972,6 @@ class QLSV_User_Profile {
                 margin: 20px 0;
                 text-align: center;
                 display: none;
-                opacity: 0;
-                height: 0;
-                transition: opacity 0.3s, height 0.3s;
-            }
-            
-            .avatar-upload-container.visible {
-                opacity: 1;
-                height: auto;
             }
             
             .avatar-preview {
@@ -879,6 +1025,17 @@ class QLSV_User_Profile {
             .sinh-vien-anh, .giaovien-profile-avatar {
                 cursor: pointer;
                 position: relative;
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                overflow: hidden;
+                margin-right: 20px;
+            }
+            
+            .sinh-vien-anh img, .giaovien-profile-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
             }
             
             .sinh-vien-anh::after, .giaovien-profile-avatar::after {
@@ -948,26 +1105,8 @@ class QLSV_User_Profile {
         // JavaScript cho avatar preview
         wp_add_inline_script('jquery', '
             jQuery(document).ready(function($) {
-                // Toggle form visibility when clicking on avatar
-                $(".sinh-vien-anh, .giaovien-profile-avatar, .qlsv-user-avatar, .avatar-preview").on("click", function() {
-                    var container = $(".avatar-upload-container");
-                    
-                    // Toggle the form with a slide animation
-                    if(container.is(":visible")) {
-                        container.slideUp(300, function() {
-                            container.removeClass("visible");
-                        });
-                    } else {
-                        container.slideDown(300, function() {
-                            container.addClass("visible");
-                            
-                            // Scroll to form
-                            $("html, body").animate({
-                                scrollTop: container.offset().top - 100
-                            }, 500);
-                        });
-                    }
-                });
+                // Tự động hiển thị form khi trang được load
+                $(".avatar-upload-container").addClass("visible");
                 
                 // Preview avatar before upload
                 $("input#qlsv_avatar").on("change", function() {
@@ -1007,16 +1146,16 @@ class QLSV_User_Profile {
                 
                 // Show the form automatically when avatar_updated param is present
                 if (window.location.href.indexOf("avatar_updated=1") > -1) {
-                    var avatarImgs = $(".sinh-vien-anh img, .giaovien-profile-avatar img, .qlsv-user-avatar img, .avatar-preview img");
+                    var avatarImgs = $(".sinh-vien-anh img, .giaovien-profile-avatar img, .qlsv-user-avatar img");
                     
                     avatarImgs.each(function() {
                         var img = $(this);
                         var currentSrc = img.attr("src");
                         
                         // Add timestamp to bypass cache
-                        if (currentSrc.indexOf("?") > -1) {
+                        if (currentSrc && currentSrc.indexOf("?") > -1) {
                             img.attr("src", currentSrc.split("?")[0] + "?v=" + new Date().getTime());
-                        } else {
+                        } else if (currentSrc) {
                             img.attr("src", currentSrc + "?v=" + new Date().getTime());
                         }
                     });
@@ -1037,13 +1176,43 @@ class QLSV_User_Profile {
             return;
         }
 
+        $user_id = get_current_user_id();
+        
+        // Xử lý trường hợp chọn ảnh từ thư viện phương tiện
+        if (isset($_POST['qlsv_avatar_attachment_id']) && !empty($_POST['qlsv_avatar_attachment_id'])) {
+            $attachment_id = intval($_POST['qlsv_avatar_attachment_id']);
+            
+            // Kiểm tra xem attachment có tồn tại không
+            if (!get_post($attachment_id) || get_post_type($attachment_id) !== 'attachment') {
+                add_action('admin_notices', function() {
+                    echo '<div class="notice notice-error is-dismissible"><p>' . __('Ảnh không hợp lệ. Vui lòng thử lại.', 'qlsv') . '</p></div>';
+                });
+                return;
+            }
+            
+            // Lấy user hiện tại
+            $user = wp_get_current_user();
+            
+            // Lưu attachment ID vào user meta
+            update_user_meta($user_id, 'qlsv_user_avatar', $attachment_id);
+            
+            // Lưu trực tiếp file ảnh vào thư mục avatars trong plugin
+            $this->save_avatar_file($attachment_id, $user_id);
+            
+            // Đảm bảo xóa cache để ảnh mới hiển thị ngay lập tức
+            clean_post_cache($attachment_id);
+            wp_cache_delete($attachment_id, 'posts');
+            
+            // Chuyển hướng về với thông báo thành công
+            wp_redirect(add_query_arg('avatar_updated', '1', $_POST['_wp_http_referer']));
+            exit;
+        }
+
         // Kiểm tra xem có file được tải lên không
         if (!isset($_FILES['qlsv_avatar']) || $_FILES['qlsv_avatar']['error'] == UPLOAD_ERR_NO_FILE) {
             return;
         }
 
-        $user_id = get_current_user_id();
-        
         // Kiểm tra lỗi upload
         if ($_FILES['qlsv_avatar']['error'] !== UPLOAD_ERR_OK) {
             add_action('admin_notices', function() {
@@ -1075,53 +1244,72 @@ class QLSV_User_Profile {
             return;
         }
 
-        // Xác định vai trò người dùng và cập nhật avatar tương ứng
-        $user = get_userdata($user_id);
+        // Lấy user hiện tại
+        $user = wp_get_current_user();
         
-        if (in_array('giaovien', $user->roles)) {
-            // Cập nhật avatar cho giáo viên
-            update_field('hinh_anh', $attachment_id, 'user_' . $user_id);
-        } else if (in_array('student', $user->roles) || $this->is_student_by_email($user->user_email)) {
-            // Tìm sinh viên có email trùng với email người dùng
-            $args = array(
-                'post_type' => 'sinhvien',
-                'posts_per_page' => 1,
-                'meta_query' => array(
-                    array(
-                        'key' => 'email',
-                        'value' => $user->user_email,
-                        'compare' => '='
-                    )
-                )
-            );
-            
-            $query = new WP_Query($args);
-            
-            if ($query->have_posts()) {
-                $query->the_post();
-                $post_id = get_the_ID();
-                update_field('anh', $attachment_id, $post_id);
-                wp_reset_postdata();
-            }
-        } else {
-            // Đối với người dùng thông thường, cập nhật avatar WordPress
-            update_user_meta($user_id, 'qlsv_user_avatar', $attachment_id);
-        }
-
-        // Chuyển hướng lại trang thông tin cá nhân
-        wp_redirect(add_query_arg('avatar_updated', '1', wp_get_referer()));
+        // Lưu attachment ID vào user meta
+        update_user_meta($user_id, 'qlsv_user_avatar', $attachment_id);
+        
+        // Lưu trực tiếp file ảnh vào thư mục avatars trong plugin
+        $this->save_avatar_file($attachment_id, $user_id);
+        
+        // Đảm bảo xóa cache để ảnh mới hiển thị ngay lập tức
+        clean_post_cache($attachment_id);
+        wp_cache_delete($attachment_id, 'posts');
+        delete_transient('qlsv_avatar_' . $user_id);
+        
+        // Chuyển hướng để tránh resubmit form
+        wp_redirect(add_query_arg('avatar_updated', '1', $_POST['_wp_http_referer']));
         exit;
+    }
+
+    /**
+     * Lưu file ảnh đại diện vào thư mục của plugin
+     */
+    private function save_avatar_file($attachment_id, $user_id) {
+        // Tạo thư mục lưu avatars nếu chưa tồn tại
+        $avatars_dir = QLSV_PLUGIN_DIR . 'assets/avatars/';
+        if (!file_exists($avatars_dir)) {
+            wp_mkdir_p($avatars_dir);
+        }
+        
+        // Lấy đường dẫn file gốc
+        $file_path = get_attached_file($attachment_id);
+        if (!$file_path || !file_exists($file_path)) {
+            return false;
+        }
+        
+        // Lấy extension của file
+        $ext = pathinfo($file_path, PATHINFO_EXTENSION);
+        
+        // Tạo tên file mới
+        $new_file = $avatars_dir . 'user_' . $user_id . '.' . $ext;
+        
+        // Copy file vào thư mục avatars
+        copy($file_path, $new_file);
+        
+        // Lưu thông tin về file avatar
+        update_user_meta($user_id, 'qlsv_avatar_file', 'user_' . $user_id . '.' . $ext);
+        
+        return true;
     }
 
     /**
      * Form upload avatar cho sinh viên
      */
     private function get_student_avatar_form($user, $student_id, $anh_id) {
-        // Đảm bảo có dashicons
+        // Đảm bảo có dashicons và thư viện phương tiện
         wp_enqueue_style('dashicons');
+        wp_enqueue_media();
         
         // Thêm tham số ngẫu nhiên để tránh cache
-        $cache_bust = isset($_GET['avatar_updated']) ? '?v=' . time() : '';
+        $cache_bust = '?v=' . time();
+        
+        // SVG mặc định
+        $svg_code = '<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="50" fill="#2575fc"/>
+            <path d="M50,20 C58.8,20 66,27.2 66,36 C66,44.8 58.8,52 50,52 C41.2,52 34,44.8 34,36 C34,27.2 41.2,20 50,20 Z M50,58 C67.7,58 82,72.3 82,90.3 L82,92 C82,93.1 81.1,94 80,94 L20,94 C18.9,94 18,93.1 18,92 L18,90.3 C18,72.3 32.3,58 50,58 Z" fill="white"/>
+        </svg>';
         
         ob_start();
         ?>
@@ -1129,107 +1317,78 @@ class QLSV_User_Profile {
             <h3><?php esc_html_e('Cập nhật ảnh đại diện', 'qlsv'); ?></h3>
             <div class="avatar-preview">
                 <?php 
-                if ($anh_id) {
+                // Kiểm tra file avatar từ thư mục trong plugin
+                $avatar_filename = get_user_meta($user->ID, 'qlsv_avatar_file', true);
+                if ($avatar_filename) {
+                    $avatar_url = plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/avatars/' . $avatar_filename;
+                    echo '<img src="' . esc_url($avatar_url . $cache_bust) . '" alt="Avatar" class="avatar">';
+                }
+                // Nếu không có, kiểm tra attachment ID
+                else if ($anh_id) {
+                    // Đảm bảo xóa cache
+                    clean_post_cache($anh_id);
+                    wp_cache_delete($anh_id, 'posts');
+                    
                     // Thêm timestamp để tránh cache
-                    $img_url = wp_get_attachment_image_url($anh_id, 'thumbnail');
+                    $img_url = wp_get_attachment_image_url($anh_id, 'medium');
                     if ($img_url) {
-                        echo '<img src="' . esc_url($img_url . $cache_bust) . '" alt="Avatar">';
+                        echo '<img src="' . esc_url($img_url . $cache_bust) . '" alt="Avatar" class="avatar">';
                     } else {
-                        echo '<div class="no-avatar"><i class="dashicons dashicons-admin-users"></i></div>';
+                        // Sử dụng SVG mặc định
+                        echo $svg_code;
                     }
                 } else {
-                    echo '<div class="no-avatar"><i class="dashicons dashicons-admin-users"></i></div>';
+                    // Sử dụng SVG mặc định
+                    echo $svg_code;
                 }
                 ?>
             </div>
             <form method="post" enctype="multipart/form-data" class="avatar-form">
                 <?php wp_nonce_field('qlsv_avatar_upload', 'qlsv_avatar_upload_nonce'); ?>
+                <input type="hidden" name="qlsv_avatar_attachment_id" id="qlsv_avatar_attachment_id" value="">
                 <div class="avatar-actions">
-                    <div class="file-input-wrapper">
-                        <input type="file" name="qlsv_avatar" id="qlsv_avatar" accept="image/*" />
-                        <label for="qlsv_avatar" class="button"><?php esc_html_e('Chọn ảnh', 'qlsv'); ?></label>
+                    <div class="avatar-buttons">
+                        <button type="button" class="button" id="qlsv_choose_from_library"><?php esc_html_e('Chọn từ thư viện', 'qlsv'); ?></button>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="qlsv_avatar" id="qlsv_avatar" accept="image/*" />
+                            <label for="qlsv_avatar" class="button"><?php esc_html_e('Tải lên ảnh mới', 'qlsv'); ?></label>
+                        </div>
                     </div>
-                    <button type="submit" class="button button-primary"><?php esc_html_e('Cập nhật', 'qlsv'); ?></button>
+                    <button type="submit" class="button button-primary" id="qlsv_avatar_submit" disabled><?php esc_html_e('Cập nhật', 'qlsv'); ?></button>
                 </div>
             </form>
             <style>
-                .file-input-wrapper {
-                    position: relative;
-                    overflow: hidden;
-                    display: inline-block;
-                    margin-bottom: 10px;
-                }
-                .file-input-wrapper input[type="file"] {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    opacity: 0;
-                    width: 0;
-                    height: 0;
-                }
-                .file-input-wrapper label {
-                    display: inline-block;
-                    padding: 6px 12px;
-                    cursor: pointer;
-                }
-                .no-avatar {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 100%;
-                    height: 100%;
-                    background-color: #f0f0f0;
-                }
-                .no-avatar .dashicons {
-                    font-size: 50px;
-                    color: #999;
-                }
-                .avatar-upload-container h3 {
-                    margin-bottom: 15px;
-                }
+            .avatar-actions {
+                margin-top: 15px;
+            }
+            .avatar-buttons {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+                justify-content: center;
+            }
+            .file-input-wrapper {
+                position: relative;
+                overflow: hidden;
+                display: inline-block;
+            }
+            .file-input-wrapper input[type=file] {
+                position: absolute;
+                left: 0;
+                top: 0;
+                opacity: 0;
+                width: 100%;
+                height: 100%;
+                cursor: pointer;
+            }
+            .avatar-preview {
+                background-color: transparent !important;
+            }
+            .avatar-preview svg {
+                width: 100%;
+                height: 100%;
+            }
             </style>
-            <script>
-            // Script để hiển thị ảnh ngay sau khi upload
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.querySelector('.avatar-form');
-                const fileInput = document.getElementById('qlsv_avatar');
-                const fileLabel = document.querySelector('.file-input-wrapper label');
-                
-                // Cập nhật tên file được chọn
-                if (fileInput && fileLabel) {
-                    fileInput.addEventListener('change', function() {
-                        if (this.files.length > 0) {
-                            const fileName = this.files[0].name;
-                            fileLabel.textContent = fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName;
-                        } else {
-                            fileLabel.textContent = '<?php esc_html_e('Chọn ảnh', 'qlsv'); ?>';
-                        }
-                    });
-                }
-                
-                if (form) {
-                    form.addEventListener('submit', function() {
-                        const fileInput = this.querySelector('input[type="file"]');
-                        if (fileInput.files.length > 0) {
-                            localStorage.setItem('avatar_updated', '1');
-                        }
-                    });
-                }
-                
-                // Hiển thị ảnh mới khi reload
-                if (window.location.href.indexOf("avatar_updated=1") > -1) {
-                    const avatarImgs = document.querySelectorAll('.sinh-vien-anh img, .avatar-preview img');
-                    avatarImgs.forEach(function(img) {
-                        const currentSrc = img.getAttribute('src');
-                        if (currentSrc.indexOf('?') > -1) {
-                            img.setAttribute('src', currentSrc.split('?')[0] + '?v=' + new Date().getTime());
-                        } else {
-                            img.setAttribute('src', currentSrc + '?v=' + new Date().getTime());
-                        }
-                    });
-                }
-            });
-            </script>
         </div>
         <?php
         return ob_get_clean();
@@ -1239,11 +1398,12 @@ class QLSV_User_Profile {
      * Form upload avatar cho giáo viên
      */
     private function get_teacher_avatar_form($user, $hinh_anh) {
-        // Đảm bảo có dashicons
+        // Đảm bảo có dashicons và thư viện phương tiện
         wp_enqueue_style('dashicons');
+        wp_enqueue_media();
         
         // Thêm tham số ngẫu nhiên để tránh cache
-        $cache_bust = isset($_GET['avatar_updated']) ? '?v=' . time() : '';
+        $cache_bust = '?v=' . time();
         
         ob_start();
         ?>
@@ -1251,11 +1411,17 @@ class QLSV_User_Profile {
             <h3><?php esc_html_e('Cập nhật ảnh đại diện', 'qlsv'); ?></h3>
             <div class="avatar-preview">
                 <?php 
-                if ($hinh_anh) {
+                // Kiểm tra file avatar từ thư mục trong plugin
+                $avatar_filename = get_user_meta($user->ID, 'qlsv_avatar_file', true);
+                if ($avatar_filename) {
+                    $avatar_url = plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/avatars/' . $avatar_filename;
+                    echo '<img src="' . esc_url($avatar_url . $cache_bust) . '" alt="Avatar" class="avatar">';
+                }
+                // Nếu không có, kiểm tra attachment ID
+                else if ($hinh_anh) {
                     $img_url = wp_get_attachment_image_url($hinh_anh, 'thumbnail');
                     if ($img_url) {
-                        $img_url = $img_url . $cache_bust;
-                        echo '<img src="' . esc_url($img_url) . '" alt="Avatar">';
+                        echo '<img src="' . esc_url($img_url . $cache_bust) . '" alt="Avatar" class="avatar">';
                     } else {
                         echo '<div class="no-avatar"><i class="dashicons dashicons-admin-users"></i></div>';
                     }
@@ -1266,54 +1432,138 @@ class QLSV_User_Profile {
             </div>
             <form method="post" enctype="multipart/form-data" class="avatar-form">
                 <?php wp_nonce_field('qlsv_avatar_upload', 'qlsv_avatar_upload_nonce'); ?>
+                <input type="hidden" name="qlsv_avatar_attachment_id" id="qlsv_avatar_attachment_id" value="">
                 <div class="avatar-actions">
-                    <div class="file-input-wrapper">
-                        <input type="file" name="qlsv_avatar" id="qlsv_avatar_teacher" accept="image/*" />
-                        <label for="qlsv_avatar_teacher" class="button"><?php esc_html_e('Chọn ảnh', 'qlsv'); ?></label>
+                    <div class="avatar-buttons">
+                        <button type="button" class="button" id="qlsv_choose_from_library"><?php esc_html_e('Chọn từ thư viện', 'qlsv'); ?></button>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="qlsv_avatar" id="qlsv_avatar_teacher" accept="image/*" />
+                            <label for="qlsv_avatar_teacher" class="button"><?php esc_html_e('Tải lên ảnh mới', 'qlsv'); ?></label>
+                        </div>
                     </div>
-                    <button type="submit" class="button button-primary"><?php esc_html_e('Cập nhật', 'qlsv'); ?></button>
+                    <button type="submit" class="button button-primary" id="qlsv_avatar_submit" disabled><?php esc_html_e('Cập nhật', 'qlsv'); ?></button>
                 </div>
             </form>
             <script>
-            // Script để hiển thị ảnh ngay sau khi chọn
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.querySelector('.avatar-form');
+            jQuery(document).ready(function($) {
+                // Script để hiển thị ảnh ngay sau khi chọn file
                 const fileInput = document.getElementById('qlsv_avatar_teacher');
-                const fileLabel = fileInput.nextElementSibling;
+                const fileLabel = fileInput ? fileInput.nextElementSibling : null;
+                const submitButton = document.getElementById('qlsv_avatar_submit');
                 
                 // Cập nhật tên file được chọn
                 if (fileInput && fileLabel) {
                     fileInput.addEventListener('change', function() {
-                        if (this.files.length > 0) {
-                            const fileName = this.files[0].name;
-                            fileLabel.textContent = fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName;
+                        if (fileInput.files.length > 0) {
+                            fileLabel.textContent = fileInput.files[0].name;
+                            submitButton.disabled = false;
                             
-                            // Preview ảnh
+                            // Hiển thị preview ảnh
                             const reader = new FileReader();
                             reader.onload = function(e) {
-                                const previewImg = document.querySelector('.avatar-preview img');
-                                const mainImg = document.querySelector('.giaovien-profile-avatar img');
-                                
-                                if (previewImg) {
-                                    previewImg.src = e.target.result;
-                                }
-                                
-                                if (mainImg) {
-                                    mainImg.src = e.target.result;
-                                    mainImg.style.opacity = '0.7';
-                                    setTimeout(() => {
-                                        mainImg.style.opacity = '1';
-                                    }, 500);
+                                const preview = document.querySelector('.avatar-preview');
+                                if (preview) {
+                                    const img = preview.querySelector('img');
+                                    if (img) {
+                                        img.src = e.target.result;
+                                    } else {
+                                        preview.innerHTML = '<img src="' + e.target.result + '" alt="Avatar">';
+                                    }
                                 }
                             };
-                            reader.readAsDataURL(this.files[0]);
+                            reader.readAsDataURL(fileInput.files[0]);
+                            
+                            // Reset attachment ID khi chọn file mới
+                            $('#qlsv_avatar_attachment_id').val('');
                         } else {
-                            fileLabel.textContent = '<?php esc_html_e('Chọn ảnh', 'qlsv'); ?>';
+                            fileLabel.textContent = '<?php esc_html_e('Tải lên ảnh mới', 'qlsv'); ?>';
+                            submitButton.disabled = true;
                         }
                     });
                 }
+                
+                // Xử lý chọn ảnh từ thư viện
+                $('#qlsv_choose_from_library').on('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Nếu đã có modal media trước đó
+                    if (wp.media.frame) {
+                        wp.media.frame.open();
+                        return;
+                    }
+                    
+                    // Tạo media frame
+                    wp.media.frame = wp.media({
+                        title: '<?php esc_html_e('Chọn ảnh đại diện', 'qlsv'); ?>',
+                        button: {
+                            text: '<?php esc_html_e('Sử dụng ảnh này', 'qlsv'); ?>'
+                        },
+                        multiple: false,
+                        library: {
+                            type: 'image'
+                        }
+                    });
+                    
+                    // Xử lý khi chọn ảnh
+                    wp.media.frame.on('select', function() {
+                        const attachment = wp.media.frame.state().get('selection').first().toJSON();
+                        
+                        // Hiển thị ảnh đã chọn
+                        const preview = document.querySelector('.avatar-preview');
+                        if (preview) {
+                            const img = preview.querySelector('img');
+                            if (img) {
+                                img.src = attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url;
+                            } else {
+                                preview.innerHTML = '<img src="' + (attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url) + '" alt="Avatar">';
+                            }
+                        }
+                        
+                        // Lưu ID ảnh đã chọn
+                        $('#qlsv_avatar_attachment_id').val(attachment.id);
+                        
+                        // Reset file input
+                        if (fileInput) {
+                            fileInput.value = '';
+                            if (fileLabel) {
+                                fileLabel.textContent = '<?php esc_html_e('Tải lên ảnh mới', 'qlsv'); ?>';
+                            }
+                        }
+                        
+                        // Bật nút submit
+                        submitButton.disabled = false;
+                    });
+                    
+                    // Mở media frame
+                    wp.media.frame.open();
+                });
             });
             </script>
+            <style>
+            .avatar-actions {
+                margin-top: 15px;
+            }
+            .avatar-buttons {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+                justify-content: center;
+            }
+            .file-input-wrapper {
+                position: relative;
+                overflow: hidden;
+                display: inline-block;
+            }
+            .file-input-wrapper input[type=file] {
+                position: absolute;
+                left: 0;
+                top: 0;
+                opacity: 0;
+                width: 100%;
+                height: 100%;
+                cursor: pointer;
+            }
+            </style>
         </div>
         <?php
         return ob_get_clean();
@@ -1323,11 +1573,12 @@ class QLSV_User_Profile {
      * Form upload avatar cho người dùng thông thường
      */
     private function get_default_user_avatar_form($user) {
-        // Đảm bảo có dashicons
+        // Đảm bảo có dashicons và thư viện phương tiện
         wp_enqueue_style('dashicons');
+        wp_enqueue_media();
         
         $avatar_id = get_user_meta($user->ID, 'qlsv_user_avatar', true);
-        $cache_bust = isset($_GET['avatar_updated']) ? '?v=' . time() : '';
+        $cache_bust = '?v=' . time();
         
         ob_start();
         ?>
@@ -1335,10 +1586,17 @@ class QLSV_User_Profile {
             <h3><?php esc_html_e('Cập nhật ảnh đại diện', 'qlsv'); ?></h3>
             <div class="avatar-preview">
                 <?php 
-                if ($avatar_id) {
+                // Kiểm tra file avatar từ thư mục trong plugin
+                $avatar_filename = get_user_meta($user->ID, 'qlsv_avatar_file', true);
+                if ($avatar_filename) {
+                    $avatar_url = plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/avatars/' . $avatar_filename;
+                    echo '<img src="' . esc_url($avatar_url . $cache_bust) . '" alt="Avatar" class="avatar">';
+                }
+                // Nếu không có, kiểm tra attachment ID
+                else if ($avatar_id) {
                     $img_url = wp_get_attachment_image_url($avatar_id, 'thumbnail');
                     if ($img_url) {
-                        echo '<img src="' . esc_url($img_url . $cache_bust) . '" alt="Avatar">';
+                        echo '<img src="' . esc_url($img_url . $cache_bust) . '" alt="Avatar" class="avatar">';
                     } else {
                         echo '<div class="no-avatar">' . get_avatar($user->ID, 150) . '</div>';
                     }
@@ -1349,54 +1607,139 @@ class QLSV_User_Profile {
             </div>
             <form method="post" enctype="multipart/form-data" class="avatar-form">
                 <?php wp_nonce_field('qlsv_avatar_upload', 'qlsv_avatar_upload_nonce'); ?>
+                <input type="hidden" name="qlsv_avatar_attachment_id" id="qlsv_avatar_attachment_id" value="">
                 <div class="avatar-actions">
-                    <div class="file-input-wrapper">
-                        <input type="file" name="qlsv_avatar" id="qlsv_avatar_default" accept="image/*" />
-                        <label for="qlsv_avatar_default" class="button"><?php esc_html_e('Chọn ảnh', 'qlsv'); ?></label>
+                    <div class="avatar-buttons">
+                        <button type="button" class="button" id="qlsv_choose_from_library"><?php esc_html_e('Chọn từ thư viện', 'qlsv'); ?></button>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="qlsv_avatar" id="qlsv_avatar_default" accept="image/*" />
+                            <label for="qlsv_avatar_default" class="button"><?php esc_html_e('Tải lên ảnh mới', 'qlsv'); ?></label>
+                        </div>
                     </div>
-                    <button type="submit" class="button button-primary"><?php esc_html_e('Cập nhật', 'qlsv'); ?></button>
+                    <button type="submit" class="button button-primary" id="qlsv_avatar_submit" disabled><?php esc_html_e('Cập nhật', 'qlsv'); ?></button>
                 </div>
             </form>
             <script>
-            // Script để hiển thị ảnh ngay sau khi chọn
-            document.addEventListener('DOMContentLoaded', function() {
+            jQuery(document).ready(function($) {
+                // Script để hiển thị ảnh ngay sau khi chọn file
                 const form = document.querySelector('.avatar-form');
                 const fileInput = document.getElementById('qlsv_avatar_default');
                 const fileLabel = fileInput ? fileInput.nextElementSibling : null;
+                const submitButton = document.getElementById('qlsv_avatar_submit');
                 
                 // Cập nhật tên file được chọn
                 if (fileInput && fileLabel) {
                     fileInput.addEventListener('change', function() {
-                        if (this.files.length > 0) {
-                            const fileName = this.files[0].name;
-                            fileLabel.textContent = fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName;
+                        if (fileInput.files.length > 0) {
+                            fileLabel.textContent = fileInput.files[0].name;
+                            submitButton.disabled = false;
                             
-                            // Preview ảnh
+                            // Hiển thị preview ảnh
                             const reader = new FileReader();
                             reader.onload = function(e) {
-                                const previewImg = document.querySelector('.avatar-preview img');
-                                const mainImg = document.querySelector('.qlsv-user-avatar img');
-                                
-                                if (previewImg) {
-                                    previewImg.src = e.target.result;
-                                }
-                                
-                                if (mainImg) {
-                                    mainImg.src = e.target.result;
-                                    mainImg.style.opacity = '0.7';
-                                    setTimeout(() => {
-                                        mainImg.style.opacity = '1';
-                                    }, 500);
+                                const preview = document.querySelector('.avatar-preview');
+                                if (preview) {
+                                    const img = preview.querySelector('img');
+                                    if (img) {
+                                        img.src = e.target.result;
+                                    } else {
+                                        preview.innerHTML = '<img src="' + e.target.result + '" alt="Avatar">';
+                                    }
                                 }
                             };
-                            reader.readAsDataURL(this.files[0]);
+                            reader.readAsDataURL(fileInput.files[0]);
+                            
+                            // Reset attachment ID khi chọn file mới
+                            $('#qlsv_avatar_attachment_id').val('');
                         } else {
-                            fileLabel.textContent = '<?php esc_html_e('Chọn ảnh', 'qlsv'); ?>';
+                            fileLabel.textContent = '<?php esc_html_e('Tải lên ảnh mới', 'qlsv'); ?>';
+                            submitButton.disabled = true;
                         }
                     });
                 }
+                
+                // Xử lý chọn ảnh từ thư viện
+                $('#qlsv_choose_from_library').on('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Nếu đã có modal media trước đó
+                    if (wp.media.frame) {
+                        wp.media.frame.open();
+                        return;
+                    }
+                    
+                    // Tạo media frame
+                    wp.media.frame = wp.media({
+                        title: '<?php esc_html_e('Chọn ảnh đại diện', 'qlsv'); ?>',
+                        button: {
+                            text: '<?php esc_html_e('Sử dụng ảnh này', 'qlsv'); ?>'
+                        },
+                        multiple: false,
+                        library: {
+                            type: 'image'
+                        }
+                    });
+                    
+                    // Xử lý khi chọn ảnh
+                    wp.media.frame.on('select', function() {
+                        const attachment = wp.media.frame.state().get('selection').first().toJSON();
+                        
+                        // Hiển thị ảnh đã chọn
+                        const preview = document.querySelector('.avatar-preview');
+                        if (preview) {
+                            const img = preview.querySelector('img');
+                            if (img) {
+                                img.src = attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url;
+                            } else {
+                                preview.innerHTML = '<img src="' + (attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url) + '" alt="Avatar">';
+                            }
+                        }
+                        
+                        // Lưu ID ảnh đã chọn
+                        $('#qlsv_avatar_attachment_id').val(attachment.id);
+                        
+                        // Reset file input
+                        if (fileInput) {
+                            fileInput.value = '';
+                            if (fileLabel) {
+                                fileLabel.textContent = '<?php esc_html_e('Tải lên ảnh mới', 'qlsv'); ?>';
+                            }
+                        }
+                        
+                        // Bật nút submit
+                        submitButton.disabled = false;
+                    });
+                    
+                    // Mở media frame
+                    wp.media.frame.open();
+                });
             });
             </script>
+            <style>
+            .avatar-actions {
+                margin-top: 15px;
+            }
+            .avatar-buttons {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+                justify-content: center;
+            }
+            .file-input-wrapper {
+                position: relative;
+                overflow: hidden;
+                display: inline-block;
+            }
+            .file-input-wrapper input[type=file] {
+                position: absolute;
+                left: 0;
+                top: 0;
+                opacity: 0;
+                width: 100%;
+                height: 100%;
+                cursor: pointer;
+            }
+            </style>
         </div>
         <?php
         return ob_get_clean();

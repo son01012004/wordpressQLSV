@@ -152,4 +152,52 @@ echo '<div class="tool-card">
 // Display footer
 echo '</body>
 </html>';
+
+/**
+ * Đăng ký hook khi plugin được kích hoạt
+ */
+register_activation_hook(__FILE__, 'qlsv_plugin_activation');
+
+/**
+ * Hàm được gọi khi plugin được kích hoạt
+ */
+function qlsv_plugin_activation() {
+    // Tạo thư mục avatars trong plugin
+    $avatars_dir = plugin_dir_path(__FILE__) . 'assets/avatars/';
+    if (!file_exists($avatars_dir)) {
+        wp_mkdir_p($avatars_dir);
+        // Đảm bảo quyền truy cập đúng
+        chmod($avatars_dir, 0755);
+    }
+    
+    // Thêm file .htaccess để bảo vệ thư mục
+    $htaccess_file = $avatars_dir . '.htaccess';
+    if (!file_exists($htaccess_file)) {
+        $htaccess_content = "# Deny access to PHP files
+<Files *.php>
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Allow access to image files
+<FilesMatch '\.(jpg|jpeg|png|gif|webp|svg)$'>
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Disable directory browsing
+Options -Indexes";
+        
+        file_put_contents($htaccess_file, $htaccess_content);
+    }
+    
+    // Thêm file index.php trống để bảo vệ thêm
+    $index_file = $avatars_dir . 'index.php';
+    if (!file_exists($index_file)) {
+        file_put_contents($index_file, '<?php // Silence is golden');
+    }
+    
+    // Flush rewrite rules
+    flush_rewrite_rules();
+}
 ?> 

@@ -1,0 +1,14 @@
+# Deny access to PHP files
+<Files *.php>
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Allow access to image files
+<FilesMatch '\.(jpg|jpeg|png|gif|webp|svg)$'>
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Disable directory browsing
+Options -Indexes
