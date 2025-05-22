@@ -55,6 +55,33 @@ get_header();
         background: #005177;
         color: #fff;
     }
+    
+    /* Đảm bảo full layout với header và footer */
+    body.single-sinhvien {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    
+    body.single-sinhvien #content,
+    body.single-sinhvien main,
+    body.single-sinhvien .rt-container-fluid,
+    body.single-sinhvien .rt-main {
+        flex: 1;
+    }
+    
+    body.single-sinhvien header,
+    body.single-sinhvien footer {
+        flex-shrink: 0;
+        display: block !important;
+        visibility: visible !important;
+    }
+    
+    /* Đảm bảo profile container nằm đúng vị trí */
+    .thong-tin-sinh-vien-container {
+        margin: 20px auto !important;
+        max-width: 800px !important;
+    }
 </style>
 
 <?php

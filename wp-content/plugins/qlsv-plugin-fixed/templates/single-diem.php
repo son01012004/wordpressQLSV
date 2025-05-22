@@ -327,6 +327,35 @@ if ($tb !== '') {
             text-align: center;
         }
     }
+    
+    .notice-info {
+        background-color: #e7f5ff;
+        border-left: 4px solid #0073aa;
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 4px;
+    }
+    
+    /* Đảm bảo full layout với header và footer */
+    body.single-diem {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    
+    body.single-diem #content,
+    body.single-diem main,
+    body.single-diem .rt-container-fluid,
+    body.single-diem .rt-main {
+        flex: 1;
+    }
+    
+    body.single-diem header,
+    body.single-diem footer {
+        flex-shrink: 0;
+        display: block !important;
+        visibility: visible !important;
+    }
 </style>
 
 <?php get_footer(); ?> 

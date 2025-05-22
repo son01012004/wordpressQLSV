@@ -311,6 +311,29 @@ if (!$is_student) {
         color: #fff !important;
         border-color: #0073aa !important;
     }
+    
+    /* Đảm bảo full layout với header và footer */
+    body.archive.post-type-archive-diem {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    
+    body.archive.post-type-archive-diem #content,
+    body.archive.post-type-archive-diem main,
+    body.archive.post-type-archive-diem .rt-container-fluid,
+    body.archive.post-type-archive-diem .rt-main {
+        flex: 1;
+    }
+    
+    body.archive.post-type-archive-diem header,
+    body.archive.post-type-archive-diem footer {
+        flex-shrink: 0;
+        display: block !important;
+        visibility: visible !important;
+    }
 </style>
 
-<?php get_footer(); ?> 
+<?php
+get_footer();
+?> 

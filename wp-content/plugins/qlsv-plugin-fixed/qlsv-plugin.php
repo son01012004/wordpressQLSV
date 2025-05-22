@@ -400,4 +400,152 @@ function qlsv_flush_rewrite_rules() {
     
     // Flush rewrite rules
     flush_rewrite_rules();
-} 
+}
+
+// Đăng ký template login tùy chỉnh
+function qlsv_custom_login_template($template) {
+    if (is_page('login') || isset($_GET['custom-login'])) {
+        $custom_template = plugin_dir_path(__FILE__) . 'templates/login-template.php';
+        if (file_exists($custom_template)) {
+            return $custom_template;
+        }
+    }
+    return $template;
+}
+add_filter('template_include', 'qlsv_custom_login_template');
+
+// Thêm CSS vào trang đăng nhập mặc định của WordPress
+function qlsv_custom_login_css() {
+    wp_enqueue_style('qlsv-login-styles', plugins_url('assets/css/qlsv-login.css', __FILE__), array(), '1.0.0');
+    
+    // Thêm script để bổ sung placeholder và tùy chỉnh form
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Thêm placeholder cho trường nhập liệu
+        var usernameField = document.getElementById('user_login');
+        var passwordField = document.getElementById('user_pass');
+        
+        if (usernameField) {
+            usernameField.placeholder = 'username';
+        }
+        
+        if (passwordField) {
+            passwordField.placeholder = 'password';
+            
+            // Tạo container cho password field để thêm mắt xem mật khẩu
+            var parent = passwordField.parentNode;
+            var wrapper = document.createElement('div');
+            wrapper.className = 'password-field-container';
+            parent.replaceChild(wrapper, passwordField);
+            wrapper.appendChild(passwordField);
+            
+            // Thêm icon mắt xem mật khẩu
+            var toggleIcon = document.createElement('span');
+            toggleIcon.className = 'password-toggle';
+            toggleIcon.innerHTML = '👁️';
+            toggleIcon.onclick = function() {
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    this.innerHTML = '👁️‍🗨️';
+                } else {
+                    passwordField.type = 'password';
+                    this.innerHTML = '👁️';
+                }
+            };
+            wrapper.appendChild(toggleIcon);
+        }
+        
+        // Ẩn phần "go to qlsv"
+        var navLinks = document.querySelectorAll('#nav a');
+        if (navLinks.length > 1) {
+            for (var i = 1; i < navLinks.length; i++) {
+                navLinks[i].style.display = 'none';
+            }
+        }
+        
+        // Ẩn checkbox ghi nhớ
+        var rememberMe = document.querySelector('.forgetmenot');
+        if (rememberMe) {
+            rememberMe.style.display = 'none';
+        }
+    });
+    </script>
+    <?php
+}
+add_action('login_enqueue_scripts', 'qlsv_custom_login_css');
+
+// Thay đổi URL logo trang đăng nhập
+function qlsv_login_logo_url() {
+    return home_url();
+}
+add_filter('login_headerurl', 'qlsv_login_logo_url');
+
+// Thay đổi title của logo trang đăng nhập
+function qlsv_login_logo_url_title() {
+    return 'Quản lý sinh viên';
+}
+add_filter('login_headertext', 'qlsv_login_logo_url_title');
+
+// Tạo shortcode để hiển thị form đăng nhập tùy chỉnh
+function qlsv_login_shortcode() {
+    if (is_user_logged_in()) {
+        return '<p>Bạn đã đăng nhập. <a href="' . wp_logout_url(home_url()) . '">Đăng xuất</a></p>';
+    }
+    
+    // Đảm bảo CSS đã được enqueue
+    wp_enqueue_style('qlsv-login-styles', plugins_url('assets/css/qlsv-login.css', __FILE__), array(), '1.0.0');
+    
+    $error = '';
+    if (isset($_GET['login']) && $_GET['login'] == 'failed') {
+        $error = '<div class="login-error">Tên đăng nhập hoặc mật khẩu không chính xác.</div>';
+    } elseif (isset($_GET['login']) && $_GET['login'] == 'empty') {
+        $error = '<div class="login-error">Vui lòng nhập tên đăng nhập và mật khẩu.</div>';
+    }
+    
+    $output = '
+    <div id="login">
+        <form name="loginform" id="loginform" action="' . esc_url(site_url('wp-login.php', 'login_post')) . '" method="post">
+            ' . $error . '
+            
+            <p>
+                <input type="text" name="log" id="user_login" class="input" value="" size="20" autocapitalize="off" autocomplete="username" required placeholder="username">
+            </p>
+
+            <p>
+                <div class="password-field-container">
+                    <input type="password" name="pwd" id="user_pass" class="input" value="" size="20" autocomplete="current-password" required placeholder="password">
+                    <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                </div>
+            </p>
+
+            <p class="submit">
+                <input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="LOG IN">
+                <input type="hidden" name="redirect_to" value="' . esc_url(home_url()) . '">
+                <input type="hidden" name="testcookie" value="1">
+            </p>
+            
+            <p id="nav">
+                <a href="' . esc_url(wp_lostpassword_url()) . '">Forgot password?</a>
+            </p>
+        </form>
+    </div>
+    
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById("user_pass");
+            const passwordIcon = document.querySelector(".password-toggle");
+            
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                passwordIcon.textContent = "👁️‍🗨️";
+            } else {
+                passwordInput.type = "password";
+                passwordIcon.textContent = "👁️";
+            }
+        }
+    </script>';
+    
+    return $output;
+}
+add_shortcode('qlsv_login_form', 'qlsv_login_shortcode'); 

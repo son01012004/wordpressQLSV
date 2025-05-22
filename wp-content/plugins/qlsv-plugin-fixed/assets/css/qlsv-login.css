@@ -1,0 +1,198 @@
+/**
+ * CSS tùy chỉnh cho trang đăng nhập
+ * Plugin Name: QLSV
+ */
+
+/* Chung */
+body.login,
+.qlsv-login-page {
+    background-color: #f8f9fa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Trang đăng nhập mặc định của WordPress */
+body.login {
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#login {
+    width: 320px !important;
+    max-width: 100% !important;
+    padding: 20px !important;
+    margin: 0 auto !important;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: hidden;
+    text-align: center;
+}
+
+#login h1 {
+    display: none; /* Ẩn phần header mặc định */
+}
+
+/* Container đăng nhập */
+#loginform {
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    background: #fff;
+}
+
+/* Tiêu đề Log in */
+.login-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.login-header h2 {
+    font-size: 24px;
+    margin: 0 0 5px;
+    color: #000;
+    font-weight: 500;
+}
+
+.login-header p {
+    font-size: 14px;
+    margin: 0;
+    color: #666;
+}
+
+/* Tiêu đề trong form đăng nhập */
+#loginform:before {
+    content: "Log in";
+    display: block;
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: #000;
+    font-weight: 500;
+}
+
+#loginform:after {
+    content: "to your account";
+    display: block;
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: #666;
+}
+
+/* Ẩn thông báo logged out */
+.message {
+    display: none !important;
+}
+
+/* Ẩn nhãn form */
+.login label {
+    display: none;
+}
+
+/* Trường nhập liệu */
+.login input[type="text"],
+.login input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.login input[type="text"]:focus,
+.login input[type="password"]:focus {
+    border-color: #0073aa;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.login input[type="text"]::placeholder,
+.login input[type="password"]::placeholder {
+    color: #999;
+}
+
+/* Nút đăng nhập */
+.wp-core-ui .button-primary {
+    background-color: #32809d !important;
+    border-color: #32809d !important;
+    box-shadow: none;
+    text-shadow: none;
+    width: 100%;
+    padding: 10px;
+    height: auto;
+    font-size: 14px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    border-radius: 30px;
+    color: #fff !important;
+    font-weight: normal;
+}
+
+.wp-core-ui .button-primary:hover,
+.wp-core-ui .button-primary:focus {
+    background-color: #256a84 !important;
+    border-color: #256a84 !important;
+}
+
+/* Links bên dưới form */
+.login #backtoblog, 
+.login #nav {
+    text-align: center;
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.login #backtoblog {
+    display: none;
+}
+
+.login #nav a {
+    color: #999;
+    margin: 0;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.login #nav a:hover {
+    color: #32809d;
+}
+
+/* Hiển thị thông báo lỗi */
+.login #login_error, 
+.login .success {
+    margin-bottom: 20px;
+}
+
+/* Ẩn checkbox ghi nhớ đăng nhập */
+.login .forgetmenot {
+    display: none;
+}
+
+/* Custom password field với eye icon */
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #0073aa;
+}
+
+.password-field-container {
+    position: relative;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #login {
+        width: 280px !important;
+        padding: 15px !important;
+    }
+} 

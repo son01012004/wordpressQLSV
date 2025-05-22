@@ -33,6 +33,61 @@ get_header();
     </main>
 </div>
 
+<style>
+    /* Định dạng thông báo đăng nhập */
+    .qlsv-login-message {
+        background: #f8f8f8;
+        border-left: 4px solid #0073aa;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    .qlsv-login-message p {
+        margin: 0 0 15px;
+    }
+    .qlsv-login-message p:last-child {
+        margin-bottom: 0;
+    }
+    .button-primary {
+        background: #0073aa;
+        color: #fff;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    .button-primary:hover {
+        background: #005177;
+        color: #fff;
+    }
+    
+    /* Đảm bảo full layout với header và footer */
+    body.post-type-archive-sinhvien {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    
+    body.post-type-archive-sinhvien #content,
+    body.post-type-archive-sinhvien main,
+    body.post-type-archive-sinhvien .rt-container-fluid,
+    body.post-type-archive-sinhvien .rt-main {
+        flex: 1;
+    }
+    
+    body.post-type-archive-sinhvien header,
+    body.post-type-archive-sinhvien footer {
+        flex-shrink: 0;
+        display: block !important;
+        visibility: visible !important;
+    }
+    
+    /* Đảm bảo profile container nằm đúng vị trí */
+    .thong-tin-sinh-vien-container {
+        margin: 20px auto !important;
+        max-width: 800px !important;
+    }
+</style>
+
 <?php
 get_sidebar();
 get_footer();

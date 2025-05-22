@@ -394,7 +394,7 @@ class QLSV_User_Profile {
         
         // Thêm nút xem bảng điểm
         $output .= '<div class="sinh-vien-actions">';
-        $output .= '<a href="' . esc_url(add_query_arg('sinhvien', $post_id, home_url('/wordpressQLSV/diem/'))) . '" class="button button-primary">Xem bảng điểm</a>';
+        $output .= '<a href="' . esc_url(home_url('/diem/?sinhvien=' . $post_id)) . '" class="button button-primary">Xem bảng điểm</a>';
         $output .= '</div>';
         
         $output .= '</div>';
@@ -541,6 +541,8 @@ class QLSV_User_Profile {
                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                 padding: 20px;
                 overflow: hidden;
+                position: relative;
+                z-index: 1;
             }
             .sinh-vien-header {
                 display: flex;
@@ -678,6 +680,19 @@ class QLSV_User_Profile {
             .qlsv-notice-success {
                 border-left-color: #46b450;
                 background: #ecf7ed;
+            }
+            
+            /* Đảm bảo header và footer hiển thị đúng */
+            .site-header, .site-footer {
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            /* Đảm bảo tương thích với theme */
+            #main .thong-tin-sinh-vien-container,
+            .rt-main .thong-tin-sinh-vien-container,
+            .rt-container-fluid .thong-tin-sinh-vien-container {
+                margin: 20px auto !important;
             }
             
             @media (max-width: 768px) {

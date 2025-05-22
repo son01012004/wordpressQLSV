@@ -397,7 +397,7 @@ class QLSV_Sinh_Vien {
         
         // Thêm nút xem bảng điểm
         $output .= '<div class="sinh-vien-actions">';
-        $output .= '<a href="' . esc_url(add_query_arg('sinhvien', $post_id, home_url('/wordpressQLSV/diem/'))) . '" class="button button-primary">Xem bảng điểm</a>';
+        $output .= '<a href="' . esc_url(home_url('/diem/?sinhvien=' . $post_id)) . '" class="button button-primary">Xem bảng điểm</a>';
         $output .= '</div>';
         
         $output .= '</div>';
