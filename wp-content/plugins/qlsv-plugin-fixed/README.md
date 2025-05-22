@@ -91,4 +91,45 @@ Bạn có thể tùy chỉnh giao diện điểm danh bằng cách thêm CSS tù
 - `.diemdanh-list-container`: Container của danh sách điểm danh
 
 ## Hỗ trợ và phát triển thêm
-Nếu bạn cần hỗ trợ hoặc muốn yêu cầu tính năng mới, vui lòng liên hệ với chúng tôi qua email: support@example.com 
+Nếu bạn cần hỗ trợ hoặc muốn yêu cầu tính năng mới, vui lòng liên hệ với chúng tôi qua email: support@example.com
+
+## Tính năng điểm danh
+
+Tính năng điểm danh cho phép:
+- Giáo viên theo dõi điểm danh của sinh viên theo lớp và môn học
+- Sinh viên xem thông tin điểm danh của mình
+- Thống kê tỷ lệ điểm danh theo môn học và thời gian
+
+**Truy cập trang điểm danh:** `http://your-site/diemdanhh/`
+
+**Quản lý điểm danh theo lớp và môn học:** `http://your-site/diemdanh/?lop=ID&mon_hoc=ID`
+
+### Fix cho Tính năng Điểm Danh (19/05/2024)
+
+Cập nhật mới nhất đã khắc phục lỗi 404 khi truy cập trang điểm danh với tham số lớp và môn học. 
+Để áp dụng bản fix này:
+
+1. Đảm bảo tất cả các file đã được cập nhật đúng cách
+2. Truy cập trang công cụ: `http://your-site/wp-content/plugins/qlsv-plugin-fixed/`
+3. Chạy công cụ "Refresh Diemdanh Settings" để làm mới cấu hình
+4. Vào Settings > Permalinks và nhấn "Save Changes" để cập nhật rewrite rules
+
+Xem hướng dẫn đầy đủ trong file `diemdanh-fix-instructions.md`
+
+## Quản lý Điểm số
+
+Tính năng quản lý điểm số cho phép:
+- Giáo viên nhập và quản lý điểm số của sinh viên
+- Sinh viên xem điểm số của mình
+- Thống kê điểm số theo lớp và môn học
+
+## Quản lý Thời khóa biểu
+
+Tính năng quản lý thời khóa biểu cho phép:
+- Lập lịch học cho các lớp và môn học
+- Xem thời khóa biểu theo lớp hoặc theo giáo viên
+- Thông báo lịch học tới sinh viên và giáo viên
+
+## Hỗ trợ
+
+Nếu bạn gặp vấn đề khi sử dụng plugin, vui lòng tạo issue trên trang GitHub của dự án hoặc liên hệ với đội hỗ trợ. 

@@ -23,6 +23,9 @@ define('QLSV_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('QLSV_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('QLSV_PLUGIN_FILE', __FILE__);
 
+// Thêm file tương thích với các theme khác nhau
+require_once(QLSV_PLUGIN_DIR . 'theme-compatibility.php');
+
 // Kiểm tra ACF plugin
 function qlsv_check_required_plugins() {
     if (!function_exists('acf_get_field') && !function_exists('get_field')) {
@@ -132,9 +135,11 @@ function qlsv_register_post_types_with_fixed_urls() {
         global $wp_post_types;
         if (isset($wp_post_types['diemdanh'])) {
             $wp_post_types['diemdanh']->rewrite = array(
-                'slug' => 'diemdanh-record',
+                'slug' => 'diemdanh',
                 'with_front' => false
             );
+            // Đảm bảo hiển thị trang archive
+            $wp_post_types['diemdanh']->has_archive = true;
         }
     }
     
@@ -154,13 +159,13 @@ function qlsv_register_post_types_with_fixed_urls() {
 function qlsv_create_required_pages() {
     // Trang Điểm danh
     $diemdanh_page_id = 0;
-    $diemdanh_page = get_page_by_path('diemdanh');
+    $diemdanh_page = get_page_by_path('diemdanhh');
     
     if (!$diemdanh_page) {
         // Tạo trang mới
         $diemdanh_page_id = wp_insert_post(array(
             'post_title'     => 'Điểm Danh',
-            'post_name'      => 'diemdanh',
+            'post_name'      => 'diemdanhh',
             'post_content'   => '[qlsv_diemdanh_dashboard]',
             'post_status'    => 'publish',
             'post_type'      => 'page',
@@ -178,9 +183,11 @@ function qlsv_create_required_pages() {
     
     // Kiểm tra và cập nhật template
     if ($diemdanh_page_id > 0) {
+        // Không cần thiết lập template, để WordPress sử dụng template mặc định
         $current_template = get_post_meta($diemdanh_page_id, '_wp_page_template', true);
-        if (empty($current_template) || $current_template == 'default') {
-            update_post_meta($diemdanh_page_id, '_wp_page_template', 'diemdanh-template.php');
+        if (!empty($current_template)) {
+            // Xóa template nếu đã được thiết lập
+            delete_post_meta($diemdanh_page_id, '_wp_page_template');
         }
     }
     
@@ -286,7 +293,7 @@ function qlsv_add_pages_to_menu($diemdanh_page_id, $ketqua_page_id) {
 
 // Sửa menu để thêm Điểm danh nếu menu được tạo động
 function qlsv_custom_nav_menu($menu_items) {
-    $diemdanh_page = get_page_by_path('diemdanh');
+    $diemdanh_page = get_page_by_path('diemdanhh');
     $ketqua_page = get_page_by_path('ket-qua-hoc-tap');
     
     // Kiểm tra xem trang Điểm Danh có trong menu không
@@ -295,6 +302,8 @@ function qlsv_custom_nav_menu($menu_items) {
     foreach ($menu_items as $item) {
         if ($item->object == 'page' && $diemdanh_page && $item->object_id == $diemdanh_page->ID) {
             $diemdanh_exists = true;
+            $item->title = 'Điểm Danh';  // Đảm bảo tiêu đề hiển thị đúng
+            $item->url = get_permalink($diemdanh_page->ID);  // Đảm bảo URL được cập nhật
         }
         if ($item->object == 'page' && $ketqua_page && $item->object_id == $ketqua_page->ID) {
             $ketqua_exists = true;
@@ -306,6 +315,20 @@ function qlsv_custom_nav_menu($menu_items) {
 
 // Flush rewrite rules khi cần
 function qlsv_flush_rewrite_rules() {
+    // Add custom rewrite rules for diemdanh with parameters
+    add_rewrite_rule(
+        'diemdanh/lop/([0-9]+)/mon-hoc/([0-9]+)/?$',
+        'index.php?post_type=diemdanh&lop=$matches[1]&mon_hoc=$matches[2]',
+        'top'
+    );
+    
+    // Add shorter version with query parameters
+    add_rewrite_rule(
+        'diemdanh/?$',
+        'index.php?post_type=diemdanh',
+        'top'
+    );
+    
     // Flush rewrite rules
     flush_rewrite_rules();
 } 

@@ -17,11 +17,14 @@ class QLSV_DiemDanh {
     public function __construct($loader) {
         $this->loader = $loader;
         
-        // Đăng ký các hooks
-        $this->register_hooks();
-        
-        // Đăng ký các shortcodes
-        $this->register_shortcodes();
+        // Only register hooks if loader is provided
+        if ($this->loader !== null) {
+            // Đăng ký các hooks
+            $this->register_hooks();
+            
+            // Đăng ký các shortcodes
+            $this->register_shortcodes();
+        }
     }
     
     /**
@@ -31,38 +34,42 @@ class QLSV_DiemDanh {
         // Đăng ký custom post type
         $this->loader->add_action('init', $this, 'register_post_type');
         
-        // Đăng ký ACF fields
-        $this->loader->add_action('acf/init', $this, 'register_acf_fields');
-        
-        // Thêm metabox
-        $this->loader->add_action('add_meta_boxes', $this, 'add_meta_boxes');
-        
         // Xử lý lưu dữ liệu khi lưu post
-        $this->loader->add_action('acf/save_post', $this, 'update_diemdanh_title', 20);
-        
-        // Đăng ký AJAX để xử lý cập nhật điểm danh
-        $this->loader->add_action('wp_ajax_update_diemdanh', $this, 'ajax_update_diemdanh');
-        
-        // Đăng ký AJAX để xử lý hiển thị chi tiết điểm danh
-        $this->loader->add_action('wp_ajax_get_diemdanh_detail', $this, 'ajax_get_diemdanh_detail');
-        $this->loader->add_action('wp_ajax_nopriv_get_diemdanh_detail', $this, 'ajax_get_diemdanh_detail');
+        $this->loader->add_action('save_post', $this, 'update_diemdanh_title', 20, 2);
         
         // Xử lý form điểm danh
         $this->loader->add_action('init', $this, 'handle_diemdanh_form');
         
-        // Đăng ký page template
-        $this->loader->add_filter('theme_page_templates', $this, 'add_page_template');
-        $this->loader->add_filter('template_include', $this, 'load_page_template');
+        // Đăng ký template tùy chỉnh cho archive diemdanh
+        $this->loader->add_filter('archive_template', $this, 'register_diemdanh_archive_template');
+        
+        // Đăng ký template tùy chỉnh cho single diemdanh
+        $this->loader->add_filter('single_template', $this, 'register_diemdanh_single_template');
+        
+        // Filter nội dung trang điểm danh - sử dụng priority cao (999) để chắc chắn chạy sau các filter khác
+        $this->loader->add_filter('the_content', $this, 'display_diemdanh_dashboard', 999);
+        
+        // Sử dụng template riêng cho trang điểm danh
+        $this->loader->add_filter('template_include', $this, 'diemdanh_template', 999);
+        
+        // Ẩn tiêu đề gốc và thêm CSS
+        $this->loader->add_action('wp_head', $this, 'add_diemdanh_css');
+        
+        // Đăng ký AJAX để xử lý cập nhật điểm danh
+        $this->loader->add_action('wp_ajax_update_diemdanh', $this, 'ajax_update_diemdanh');
+        $this->loader->add_action('wp_ajax_nopriv_update_diemdanh', $this, 'ajax_update_diemdanh');
+        
+        // Fix 404 errors for query parameters
+        $this->loader->add_action('pre_get_posts', $this, 'handle_diemdanh_queries');
     }
     
     /**
-     * Đăng ký các shortcodes
+     * Đăng ký các shortcode
      */
     private function register_shortcodes() {
-        add_shortcode('qlsv_diemdanh', array($this, 'diemdanh_shortcode'));
-        add_shortcode('qlsv_diemdanh_sinhvien', array($this, 'diemdanh_sinhvien_shortcode'));
-        add_shortcode('qlsv_diemdanh_form', array($this, 'diemdanh_form_shortcode'));
         add_shortcode('qlsv_diemdanh_dashboard', array($this, 'diemdanh_dashboard_shortcode'));
+        add_shortcode('qlsv_diemdanh_form', array($this, 'diemdanh_form_shortcode'));
+        add_shortcode('qlsv_diemdanh_list', array($this, 'diemdanh_list_shortcode'));
     }
     
     /**
@@ -95,260 +102,42 @@ class QLSV_DiemDanh {
             'show_in_menu'       => true,
             'query_var'          => true,
             'rewrite'            => array(
-                'slug' => 'diemdanh-record',
-                'with_front' => false
+                'slug' => 'diemdanh',
+                'with_front' => false,
+                'feeds' => false,
+                'pages' => false,
+                'ep_mask' => EP_PERMALINK
             ),
             'capability_type'    => 'post',
-            'has_archive'        => false,
+            'has_archive'        => true,
             'hierarchical'       => false,
             'menu_position'      => null,
             'supports'           => array('title'),
             'menu_icon'          => 'dashicons-clipboard',
+            'show_in_rest'       => false  // Disable Gutenberg editor
         );
 
         register_post_type('diemdanh', $args);
-    }
-    
-    /**
-     * Đăng ký ACF Fields cho điểm danh
-     */
-    public function register_acf_fields() {
-        if (!function_exists('acf_add_local_field_group')) {
-            return;
-        }
 
-        acf_add_local_field_group(array(
-            'key' => 'group_diemdanh',
-            'title' => 'Thông tin buổi điểm danh',
-            'fields' => array(
-                array(
-                    'key' => 'field_mon_hoc_dd',
-                    'label' => 'Môn học',
-                    'name' => 'mon_hoc',
-                    'type' => 'post_object',
-                    'instructions' => 'Chọn môn học',
-                    'required' => 1,
-                    'post_type' => array('monhoc'),
-                    'return_format' => 'id',
-                    'ui' => 1,
-                ),
-                array(
-                    'key' => 'field_lop_dd',
-                    'label' => 'Lớp',
-                    'name' => 'lop',
-                    'type' => 'post_object',
-                    'instructions' => 'Chọn lớp',
-                    'required' => 1,
-                    'post_type' => array('lop'),
-                    'return_format' => 'id',
-                    'ui' => 1,
-                ),
-                array(
-                    'key' => 'field_giang_vien_dd',
-                    'label' => 'Giảng viên',
-                    'name' => 'giang_vien',
-                    'type' => 'user',
-                    'instructions' => 'Chọn giảng viên',
-                    'required' => 0,
-                    'role' => '',
-                    'return_format' => 'id',
-                ),
-                array(
-                    'key' => 'field_ngay_dd',
-                    'label' => 'Ngày',
-                    'name' => 'ngay',
-                    'type' => 'date_picker',
-                    'instructions' => 'Chọn ngày điểm danh',
-                    'required' => 1,
-                    'display_format' => 'd/m/Y',
-                    'return_format' => 'Y-m-d',
-                ),
-                array(
-                    'key' => 'field_buoi_hoc',
-                    'label' => 'Buổi học',
-                    'name' => 'buoi_hoc',
-                    'type' => 'number',
-                    'instructions' => 'Nhập số buổi học',
-                    'required' => 1,
-                    'default_value' => 1,
-                    'min' => 1,
-                    'step' => 1,
-                ),
-                array(
-                    'key' => 'field_ghi_chu',
-                    'label' => 'Ghi chú',
-                    'name' => 'ghi_chu',
-                    'type' => 'textarea',
-                    'instructions' => 'Nhập ghi chú về buổi học (nếu có)',
-                    'required' => 0,
-                ),
-                array(
-                    'key' => 'field_sinh_vien_dd',
-                    'label' => 'Sinh viên',
-                    'name' => 'sinh_vien_dd',
-                    'type' => 'repeater',
-                    'instructions' => 'Danh sách sinh viên điểm danh',
-                    'required' => 0,
-                    'layout' => 'table',
-                    'sub_fields' => array(
-                        array(
-                            'key' => 'field_sv_id',
-                            'label' => 'Sinh viên',
-                            'name' => 'sinh_vien_id',
-                            'type' => 'post_object',
-                            'instructions' => '',
-                            'required' => 1,
-                            'post_type' => array('sinhvien'),
-                            'return_format' => 'id',
-                            'ui' => 1,
-                        ),
-                        array(
-                            'key' => 'field_trang_thai',
-                            'label' => 'Trạng thái',
-                            'name' => 'trang_thai',
-                            'type' => 'select',
-                            'instructions' => '',
-                            'required' => 1,
-                            'choices' => array(
-                                'co_mat' => 'Có mặt',
-                                'vang' => 'Vắng',
-                                'di_muon' => 'Đi muộn',
-                                've_som' => 'Về sớm',
-                                'co_phep' => 'Có phép',
-                            ),
-                            'default_value' => 'co_mat',
-                        ),
-                        array(
-                            'key' => 'field_ghi_chu_sv',
-                            'label' => 'Ghi chú',
-                            'name' => 'ghi_chu',
-                            'type' => 'text',
-                            'instructions' => '',
-                            'required' => 0,
-                        ),
-                    ),
-                ),
-            ),
-            'location' => array(
-                array(
-                    array(
-                        'param' => 'post_type',
-                        'operator' => '==',
-                        'value' => 'diemdanh',
-                    ),
-                ),
-            ),
-            'menu_order' => 0,
-            'position' => 'normal',
-            'style' => 'default',
-            'label_placement' => 'top',
-            'instruction_placement' => 'label',
-        ));
+        // Đăng ký thêm các tham số query cho custom post type này
+        $this->loader->add_filter('query_vars', $this, 'add_query_vars');
     }
     
     /**
-     * Thêm metabox
+     * Thêm các biến query để sử dụng trong URL
      */
-    public function add_meta_boxes() {
-        add_meta_box(
-            'diemdanh_info',
-            'Thông tin điểm danh',
-            array($this, 'render_meta_box'),
-            'diemdanh',
-            'normal',
-            'high'
-        );
-    }
-    
-    /**
-     * Render metabox thông tin điểm danh
-     */
-    public function render_meta_box($post) {
-        // Lấy thông tin cơ bản
-        $mon_hoc_id = get_field('mon_hoc', $post->ID);
-        $lop_id = get_field('lop', $post->ID);
-        $ngay = get_field('ngay', $post->ID);
-        $buoi_hoc = get_field('buoi_hoc', $post->ID);
-
-        // Hiển thị tóm tắt thông tin
-        echo '<div class="diemdanh-summary">';
-        
-        if ($mon_hoc_id) {
-            echo '<p><strong>Môn học:</strong> ' . get_the_title($mon_hoc_id) . '</p>';
-        }
-        
-        if ($lop_id) {
-            echo '<p><strong>Lớp:</strong> ' . get_the_title($lop_id) . '</p>';
-        }
-        
-        if ($ngay) {
-            echo '<p><strong>Ngày:</strong> ' . date_i18n('d/m/Y', strtotime($ngay)) . '</p>';
-        }
-        
-        if ($buoi_hoc) {
-            echo '<p><strong>Buổi học số:</strong> ' . $buoi_hoc . '</p>';
-        }
-        
-        echo '</div>';
-        
-        // Thêm nút "Cập nhật danh sách sinh viên" nếu đã có lớp được chọn
-        if ($lop_id && $lop_id > 0) {
-            echo '<div class="diemdanh-actions">';
-            echo '<button type="button" id="update-student-list" class="button button-primary" data-lop-id="' . $lop_id . '" data-post-id="' . $post->ID . '">Cập nhật danh sách sinh viên</button>';
-            echo '<span class="spinner" style="float:none;"></span>';
-            echo '</div>';
-            
-            // Thêm JavaScript để xử lý cập nhật danh sách sinh viên
-            ?>
-            <script>
-            jQuery(document).ready(function($) {
-                $('#update-student-list').on('click', function() {
-                    var button = $(this);
-                    var spinner = button.next('.spinner');
-                    var lopId = button.data('lop-id');
-                    var postId = button.data('post-id');
-                    
-                    spinner.addClass('is-active');
-                    button.prop('disabled', true);
-                    
-                    $.ajax({
-                        url: ajaxurl,
-                        type: 'POST',
-                        data: {
-                            action: 'update_diemdanh',
-                            lop_id: lopId,
-                            post_id: postId,
-                            security: '<?php echo wp_create_nonce('update_diemdanh_nonce'); ?>'
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                alert('Đã cập nhật danh sách sinh viên thành công!');
-                                window.location.reload();
-                            } else {
-                                alert('Có lỗi xảy ra: ' + response.data);
-                            }
-                        },
-                        error: function() {
-                            alert('Đã xảy ra lỗi khi kết nối với server.');
-                        },
-                        complete: function() {
-                            spinner.removeClass('is-active');
-                            button.prop('disabled', false);
-                        }
-                    });
-                });
-            });
-            </script>
-            <?php
-        }
+    public function add_query_vars($vars) {
+        $vars[] = 'lop';
+        $vars[] = 'mon_hoc';
+        return $vars;
     }
     
     /**
      * Cập nhật tiêu đề điểm danh tự động
      */
-    public function update_diemdanh_title($post_id) {
+    public function update_diemdanh_title($post_id, $post) {
         // Chỉ xử lý post type 'diemdanh'
-        if (get_post_type($post_id) !== 'diemdanh') {
+        if ($post->post_type !== 'diemdanh') {
             return;
         }
 
@@ -356,7 +145,6 @@ class QLSV_DiemDanh {
         $mon_hoc_id = get_field('mon_hoc', $post_id);
         $lop_id = get_field('lop', $post_id);
         $ngay = get_field('ngay', $post_id);
-        $buoi_hoc = get_field('buoi_hoc', $post_id);
         
         if ($mon_hoc_id && $lop_id && $ngay) {
             $mon_hoc = get_the_title($mon_hoc_id);
@@ -364,38 +152,1286 @@ class QLSV_DiemDanh {
             $ngay_format = date_i18n('d/m/Y', strtotime($ngay));
             
             // Cập nhật tiêu đề
-            $title = sprintf('Điểm danh %s - %s - %s - Buổi %s', $lop, $mon_hoc, $ngay_format, $buoi_hoc);
+            $title = sprintf('Điểm danh %s - %s - %s', $lop, $mon_hoc, $ngay_format);
             
             // Cập nhật post mà không trigger save_post hook
-            remove_action('acf/save_post', array($this, 'update_diemdanh_title'), 20);
+            remove_action('save_post', array($this, 'update_diemdanh_title'), 20);
             
             wp_update_post(array(
                 'ID' => $post_id,
                 'post_title' => $title,
             ));
             
-            add_action('acf/save_post', array($this, 'update_diemdanh_title'), 20);
+            add_action('save_post', array($this, 'update_diemdanh_title'), 20, 2);
         }
     }
     
     /**
-     * Xử lý AJAX cập nhật danh sách sinh viên
+     * Thêm CSS cho trang điểm danh
      */
-    public function ajax_update_diemdanh() {
-        // Kiểm tra nonce bảo mật
-        check_ajax_referer('update_diemdanh_nonce', 'security');
-        
-        // Lấy dữ liệu
-        $lop_id = isset($_POST['lop_id']) ? intval($_POST['lop_id']) : 0;
-        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-        
-        // Kiểm tra dữ liệu hợp lệ
-        if (!$lop_id || !$post_id) {
-            wp_send_json_error('Dữ liệu không hợp lệ.');
+    public function add_diemdanh_css() {
+        // Chỉ áp dụng cho trang điểm danh
+        if (!$this->is_diemdanh_page()) {
             return;
         }
         
-        // Query sinh viên thuộc lớp
+        echo '<style>
+        .page-header, .entry-header, .entry-meta, .post-thumbnail, article > header {
+            display: none !important;
+        }
+        .entry-content, #main, #primary {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 20px !important;
+        }
+        .entry-title.diemdanh-title {
+            display: block !important;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        </style>';
+    }
+    
+    /**
+     * Kiểm tra xem có phải trang điểm danh không
+     */
+    private function is_diemdanh_page() {
+        return is_page('diemdanhh') || 
+               is_page('diem-danh') || 
+               is_page() && (strpos($_SERVER['REQUEST_URI'], '/diemdanhh') !== false || 
+                             strpos($_SERVER['REQUEST_URI'], '/diem-danh') !== false);
+    }
+    
+    /**
+     * Filter template cho trang điểm danh
+     */
+    public function diemdanh_template($template) {
+        // Nếu là trang điểm danh và template tồn tại
+        if ($this->is_diemdanh_page()) {
+            $diemdanh_template = plugin_dir_path(dirname(dirname(__FILE__))) . 'templates/page-diemdanh.php';
+            
+            if (file_exists($diemdanh_template)) {
+                return $diemdanh_template;
+            }
+        }
+        
+        return $template;
+    }
+    
+    /**
+     * Filter để hiển thị nội dung trang điểm danh
+     */
+    public function display_diemdanh_dashboard($content) {
+        // Kiểm tra hiện tại có phải trang điểm danh không
+        if (!$this->is_diemdanh_page()) {
+            return $content;
+        }
+        
+        // Đặt tiêu đề trang
+        global $post;
+        if ($post) {
+            $post->post_title = 'Điểm Danh';
+        }
+        
+        // Buộc giao diện điểm danh
+        ob_start();
+        
+        // Tiêu đề trang
+        echo '<h1 class="entry-title diemdanh-title">Điểm Danh</h1>';
+        
+        // Nếu không có người dùng đăng nhập, yêu cầu đăng nhập
+        if (!is_user_logged_in()) {
+            echo '<div style="padding: 20px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; margin-bottom: 20px; border-radius: 4px;">';
+            echo '<p>Bạn cần đăng nhập để sử dụng chức năng này.</p>';
+            echo '<p><a href="' . wp_login_url(get_permalink()) . '" class="button">Đăng nhập</a></p>';
+            echo '</div>';
+            return ob_get_clean();
+        }
+        
+        // Hiển thị dashboard
+        echo do_shortcode('[qlsv_diemdanh_dashboard]');
+        
+        // Thay thế toàn bộ nội dung
+        return ob_get_clean();
+    }
+    
+    /**
+     * Shortcode hiển thị dashboard điểm danh
+     */
+    public function diemdanh_dashboard_shortcode($atts) {
+        // Tham số mặc định
+        $atts = shortcode_atts(array(), $atts);
+        
+        ob_start();
+        
+        // CSS cho giao diện
+        echo '<style>
+            .diemdanh-dashboard {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+                margin-bottom: 30px;
+                background: #fff;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            .diemdanh-tabs {
+                margin: 20px 0;
+                border-bottom: 1px solid #ccc;
+            }
+            .diemdanh-tabs ul {
+                display: flex;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            .diemdanh-tabs li {
+                margin: 0 5px 0 0;
+            }
+            .diemdanh-tabs a {
+                display: block;
+                padding: 10px 15px;
+                text-decoration: none;
+                background: #f5f5f5;
+                color: #333;
+                border: 1px solid #ccc;
+                border-bottom: none;
+            }
+            .diemdanh-tabs li.active a {
+                background: #fff;
+                position: relative;
+                border-bottom: 1px solid #fff;
+                margin-bottom: -1px;
+            }
+            .diemdanh-content {
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-top: none;
+                background: #fff;
+            }
+            .diemdanh-form {
+                margin: 20px 0;
+            }
+            .diemdanh-form .form-group {
+                margin-bottom: 15px;
+            }
+            .diemdanh-form label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+            .diemdanh-form select,
+            .diemdanh-form input[type="date"] {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                max-width: 300px;
+            }
+            .diemdanh-form button {
+                padding: 10px 15px;
+                background: #0073aa;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .diemdanh-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            .diemdanh-table th, 
+            .diemdanh-table td {
+                padding: 10px;
+                border: 1px solid #ddd;
+                text-align: left;
+            }
+            .diemdanh-table th {
+                background-color: #f2f2f2;
+            }
+            .diemdanh-error {
+                color: #a94442;
+                background-color: #f2dede;
+                padding: 15px;
+                margin-bottom: 20px;
+                border: 1px solid #ebccd1;
+                border-radius: 4px;
+            }
+            .diemdanh-success {
+                color: #3c763d;
+                background-color: #dff0d8;
+                padding: 15px;
+                margin-bottom: 20px;
+                border: 1px solid #d6e9c6;
+                border-radius: 4px;
+            }
+            .status-present {
+                color: #3c763d;
+                font-weight: bold;
+            }
+            .status-absent {
+                color: #a94442;
+                font-weight: bold;
+            }
+        </style>';
+        
+        echo '<div class="diemdanh-dashboard">';
+        echo '<h2>Quản lý điểm danh</h2>';
+        
+        // Kiểm tra người dùng đăng nhập
+        if (!is_user_logged_in()) {
+            echo '<div class="diemdanh-error">';
+            echo '<p>Bạn cần đăng nhập để sử dụng chức năng này.</p>';
+            echo '<p><a href="' . wp_login_url(get_permalink()) . '" class="button">Đăng nhập</a></p>';
+            echo '</div>';
+            echo '</div>';
+            return ob_get_clean();
+        }
+        
+        // Xác định vai trò người dùng
+        $current_user = wp_get_current_user();
+        $is_admin = current_user_can('manage_options');
+        $is_teacher = current_user_can('edit_posts') || $is_admin;  // Giả sử giáo viên có quyền edit_posts
+        $is_student = !$is_teacher; // Nếu không phải giáo viên hoặc admin thì là sinh viên
+        
+        // Tabs
+        $current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : ($is_student ? 'view' : 'form');
+        
+        echo '<div class="diemdanh-tabs">';
+        echo '<ul>';
+        
+        // Chỉ hiển thị tab tạo điểm danh cho giáo viên và admin
+        if ($is_teacher) {
+            echo '<li class="' . ($current_tab === 'form' ? 'active' : '') . '"><a href="?tab=form">Tạo điểm danh</a></li>';
+        }
+        
+        echo '<li class="' . ($current_tab === 'view' ? 'active' : '') . '"><a href="?tab=view">Xem điểm danh</a></li>';
+        
+        // Chỉ hiển thị tab báo cáo cho giáo viên và admin
+        if ($is_teacher) {
+            echo '<li class="' . ($current_tab === 'report' ? 'active' : '') . '"><a href="?tab=report">Báo cáo</a></li>';
+        }
+        
+        echo '</ul>';
+        echo '</div>';
+        
+        echo '<div class="diemdanh-content">';
+        
+        // Tab content
+        if ($current_tab === 'form') {
+            if ($is_teacher) {
+                // Hiển thị form điểm danh cho giáo viên/admin
+                echo do_shortcode('[qlsv_diemdanh_form]');
+            } else {
+                // Không có quyền
+                echo '<div class="diemdanh-error">';
+                echo '<p>Bạn không có quyền tạo điểm danh. Chỉ giáo viên và quản trị viên mới có thể tạo điểm danh.</p>';
+                echo '</div>';
+            }
+        } elseif ($current_tab === 'view') {
+            // Hiển thị danh sách điểm danh (tất cả người dùng đều có thể xem)
+            echo do_shortcode('[qlsv_diemdanh_list]');
+        } elseif ($current_tab === 'report' && $is_teacher) {
+            // Hiển thị báo cáo cho giáo viên/admin
+            echo '<h3>Báo cáo điểm danh</h3>';
+            
+            // Hiển thị chọn lớp và môn học
+            echo '<form class="diemdanh-form" method="get">';
+            echo '<input type="hidden" name="tab" value="report">';
+            
+            // Lớp học
+            echo '<div class="form-group">';
+            echo '<label for="lop">Lớp học:</label>';
+            echo '<select name="lop" id="lop">';
+            echo '<option value="">Chọn lớp</option>';
+            
+            // Lấy danh sách lớp
+            $lop_query = new WP_Query(array(
+                'post_type' => 'lop',
+                'posts_per_page' => -1,
+                'orderby' => 'title',
+                'order' => 'ASC'
+            ));
+            
+            $selected_lop = isset($_GET['lop']) ? intval($_GET['lop']) : 0;
+            
+            if ($lop_query->have_posts()) {
+                while ($lop_query->have_posts()) {
+                    $lop_query->the_post();
+                    $selected = ($selected_lop === get_the_ID()) ? 'selected' : '';
+                    echo '<option value="' . get_the_ID() . '" ' . $selected . '>' . get_the_title() . '</option>';
+                }
+            }
+            wp_reset_postdata();
+            
+            echo '</select>';
+            echo '</div>';
+            
+            // Môn học
+            echo '<div class="form-group">';
+            echo '<label for="mon_hoc">Môn học:</label>';
+            echo '<select name="mon_hoc" id="mon_hoc">';
+            echo '<option value="">Chọn môn học</option>';
+            
+            // Lấy danh sách môn học
+            $monhoc_query = new WP_Query(array(
+                'post_type' => 'monhoc',
+                'posts_per_page' => -1,
+                'orderby' => 'title',
+                'order' => 'ASC'
+            ));
+            
+            $selected_monhoc = isset($_GET['mon_hoc']) ? intval($_GET['mon_hoc']) : 0;
+            
+            if ($monhoc_query->have_posts()) {
+                while ($monhoc_query->have_posts()) {
+                    $monhoc_query->the_post();
+                    $selected = ($selected_monhoc === get_the_ID()) ? 'selected' : '';
+                    echo '<option value="' . get_the_ID() . '" ' . $selected . '>' . get_the_title() . '</option>';
+                }
+            }
+            wp_reset_postdata();
+            
+            echo '</select>';
+            echo '</div>';
+            
+            echo '<button type="submit">Xem báo cáo</button>';
+            echo '</form>';
+            
+            // Hiển thị báo cáo nếu đã chọn lớp và môn học
+            if ($selected_lop > 0 && $selected_monhoc > 0) {
+                $this->generate_diemdanh_report($selected_lop, $selected_monhoc);
+            } else {
+                echo '<p>Vui lòng chọn lớp và môn học để xem báo cáo điểm danh.</p>';
+            }
+        }
+        
+        echo '</div>'; // End .diemdanh-content
+        echo '</div>'; // End .diemdanh-dashboard
+        
+        return ob_get_clean();
+    }
+    
+    /**
+     * Tạo báo cáo điểm danh
+     */
+    private function generate_diemdanh_report($lop_id, $mon_hoc_id) {
+        // Lấy thông tin lớp và môn học
+        $lop_name = get_the_title($lop_id);
+        $mon_hoc_name = get_the_title($mon_hoc_id);
+        
+        echo '<h3>Báo cáo điểm danh: ' . $lop_name . ' - ' . $mon_hoc_name . '</h3>';
+        
+        // Lấy tất cả các bản ghi điểm danh của lớp và môn học
+        $diemdanh_query = new WP_Query(array(
+            'post_type' => 'diemdanh',
+            'posts_per_page' => -1,
+            'meta_query' => array(
+                'relation' => 'AND',
+                array(
+                    'key' => 'lop',
+                    'value' => $lop_id,
+                    'compare' => '='
+                ),
+                array(
+                    'key' => 'mon_hoc',
+                    'value' => $mon_hoc_id,
+                    'compare' => '='
+                )
+            ),
+            'orderby' => 'date',
+            'order' => 'ASC'
+        ));
+        
+        if (!$diemdanh_query->have_posts()) {
+            echo '<p>Không tìm thấy dữ liệu điểm danh cho lớp và môn học này.</p>';
+            return;
+        }
+        
+        // Lấy danh sách sinh viên của lớp
+        $sinh_vien_array = array();
+        $sv_query = new WP_Query(array(
+            'post_type' => 'sinhvien',
+            'posts_per_page' => -1,
+            'meta_query' => array(
+                array(
+                    'key' => 'lop',
+                    'value' => $lop_id,
+                    'compare' => '='
+                )
+            ),
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ));
+        
+        if (!$sv_query->have_posts()) {
+            echo '<p>Không tìm thấy sinh viên nào trong lớp này.</p>';
+            return;
+        }
+        
+        while ($sv_query->have_posts()) {
+            $sv_query->the_post();
+            $sinh_vien_array[get_the_ID()] = get_the_title();
+        }
+        wp_reset_postdata();
+        
+        // Tạo mảng lưu ngày điểm danh
+        $diemdanh_dates = array();
+        $diemdanh_data = array();
+        
+        // Thu thập dữ liệu điểm danh
+        while ($diemdanh_query->have_posts()) {
+            $diemdanh_query->the_post();
+            $diemdanh_id = get_the_ID();
+            $ngay = get_field('ngay', $diemdanh_id);
+            $ngay_format = date_i18n('d/m/Y', strtotime($ngay));
+            
+            $diemdanh_dates[$diemdanh_id] = $ngay_format;
+            
+            // Lấy trạng thái điểm danh
+            $sinh_vien_status = get_post_meta($diemdanh_id, 'sinh_vien_status', true);
+            
+            if (!empty($sinh_vien_status)) {
+                foreach ($sinh_vien_array as $sv_id => $sv_name) {
+                    $diemdanh_data[$sv_id][$diemdanh_id] = isset($sinh_vien_status[$sv_id]) ? $sinh_vien_status[$sv_id] : 'absent';
+                }
+            }
+        }
+        wp_reset_postdata();
+        
+        // Hiển thị báo cáo
+        echo '<div style="overflow-x: auto;">';
+        echo '<table class="diemdanh-table">';
+        echo '<thead>';
+        echo '<tr>';
+        echo '<th>STT</th>';
+        echo '<th>Sinh viên</th>';
+        
+        // Headers ngày điểm danh
+        foreach ($diemdanh_dates as $dd_id => $dd_date) {
+            echo '<th>' . $dd_date . '</th>';
+        }
+        
+        echo '<th>Tổng vắng</th>';
+        echo '</tr>';
+        echo '</thead>';
+        echo '<tbody>';
+        
+        $stt = 1;
+        foreach ($sinh_vien_array as $sv_id => $sv_name) {
+            echo '<tr>';
+            echo '<td>' . $stt++ . '</td>';
+            echo '<td>' . $sv_name . '</td>';
+            
+            $absent_count = 0;
+            
+            // Trạng thái điểm danh từng ngày
+            foreach ($diemdanh_dates as $dd_id => $dd_date) {
+                $status = isset($diemdanh_data[$sv_id][$dd_id]) ? $diemdanh_data[$sv_id][$dd_id] : 'absent';
+                
+                if ($status === 'absent') {
+                    $absent_count++;
+                    echo '<td class="status-absent">Vắng</td>';
+                } else {
+                    echo '<td class="status-present">Có mặt</td>';
+                }
+            }
+            
+            // Tổng số buổi vắng
+            echo '<td>' . $absent_count . '</td>';
+            echo '</tr>';
+        }
+        
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
+    }
+    
+    /**
+     * Shortcode hiển thị form điểm danh
+     */
+    public function diemdanh_form_shortcode($atts) {
+        // Tham số mặc định
+        $atts = shortcode_atts(array(
+            'lop_id' => 0,
+            'mon_hoc_id' => 0
+        ), $atts);
+        
+        $lop_id = intval($atts['lop_id']);
+        $mon_hoc_id = intval($atts['mon_hoc_id']);
+        
+        ob_start();
+        
+        // Kiểm tra quyền truy cập (chỉ giáo viên và admin)
+        if (!current_user_can('edit_posts') && !current_user_can('manage_options')) {
+            echo '<div class="diemdanh-error">';
+            echo '<p>Bạn không có quyền sử dụng chức năng này.</p>';
+            echo '</div>';
+            return ob_get_clean();
+        }
+        
+        // Xử lý form submit
+        $form_message = '';
+        if (isset($_POST['submit_diemdanh']) && isset($_POST['diemdanh_nonce']) && wp_verify_nonce($_POST['diemdanh_nonce'], 'submit_diemdanh')) {
+            $form_lop_id = isset($_POST['lop']) ? intval($_POST['lop']) : 0;
+            $form_mon_hoc_id = isset($_POST['mon_hoc']) ? intval($_POST['mon_hoc']) : 0;
+            $ngay = isset($_POST['ngay']) ? sanitize_text_field($_POST['ngay']) : '';
+            
+            // Kiểm tra dữ liệu hợp lệ
+            if ($form_lop_id > 0 && $form_mon_hoc_id > 0 && !empty($ngay)) {
+                // Kiểm tra xem đã có điểm danh cho ngày này chưa
+                $existing_diemdanh = get_posts(array(
+                    'post_type' => 'diemdanh',
+                    'posts_per_page' => 1,
+                    'meta_query' => array(
+                        'relation' => 'AND',
+                        array(
+                            'key' => 'lop',
+                            'value' => $form_lop_id,
+                            'compare' => '='
+                        ),
+                        array(
+                            'key' => 'mon_hoc',
+                            'value' => $form_mon_hoc_id,
+                            'compare' => '='
+                        ),
+                        array(
+                            'key' => 'ngay',
+                            'value' => $ngay,
+                            'compare' => '='
+                        )
+                    )
+                ));
+                
+                $diemdanh_id = 0;
+                
+                if (!empty($existing_diemdanh)) {
+                    $diemdanh_id = $existing_diemdanh[0]->ID;
+                    $form_message = '<div class="diemdanh-success">Đã tìm thấy điểm danh hiện có cho ngày này. Bạn có thể xem chi tiết.</div>';
+                } else {
+                    // Tạo bản ghi điểm danh mới
+                    $diemdanh_id = wp_insert_post(array(
+                        'post_title' => 'Đang tạo điểm danh mới...',
+                        'post_status' => 'publish',
+                        'post_type' => 'diemdanh'
+                    ));
+                    
+                    if ($diemdanh_id > 0) {
+                        // Cập nhật trường ACF
+                        update_field('lop', $form_lop_id, $diemdanh_id);
+                        update_field('mon_hoc', $form_mon_hoc_id, $diemdanh_id);
+                        update_field('ngay', $ngay, $diemdanh_id);
+                        
+                        // Cập nhật tiêu đề
+                        $this->update_diemdanh_title($diemdanh_id, get_post($diemdanh_id));
+                        
+                        $form_message = '<div class="diemdanh-success">Đã tạo bản ghi điểm danh mới. Vui lòng cập nhật thông tin sinh viên.</div>';
+                    } else {
+                        $form_message = '<div class="diemdanh-error">Có lỗi khi tạo bản ghi điểm danh.</div>';
+                    }
+                }
+                
+                // Chuyển đến trang xem điểm danh hoặc chỉnh sửa
+                if ($diemdanh_id > 0) {
+                    $view_link = get_permalink($diemdanh_id);
+                    echo '<script>window.location.href = "' . esc_url($view_link) . '";</script>';
+                    echo '<div class="diemdanh-success">Đang chuyển hướng đến trang điểm danh...</div>';
+                    echo '<p><a href="' . esc_url($view_link) . '">Nhấn vào đây nếu không tự chuyển hướng.</a></p>';
+                    return ob_get_clean();
+                }
+            } else {
+                $form_message = '<div class="diemdanh-error">Vui lòng điền đầy đủ thông tin.</div>';
+            }
+        }
+        
+        // Hiển thị form
+        echo '<h3>Tạo điểm danh mới</h3>';
+        
+        if (!empty($form_message)) {
+            echo $form_message;
+        }
+        
+        echo '<form class="diemdanh-form" method="post">';
+        
+        // Lớp học
+        echo '<div class="form-group">';
+        echo '<label for="lop">Lớp học:</label>';
+        
+        if ($lop_id > 0) {
+            // Nếu đã có lớp được chọn từ tham số, hiển thị dưới dạng hidden field
+            $lop_name = get_the_title($lop_id);
+            echo '<input type="hidden" name="lop" value="' . esc_attr($lop_id) . '">';
+            echo '<p><strong>' . esc_html($lop_name) . '</strong></p>';
+        } else {
+            // Nếu chưa có lớp, hiển thị dropdown để chọn
+            echo '<select name="lop" id="lop" required>';
+            echo '<option value="">Chọn lớp</option>';
+            
+            // Lấy danh sách lớp
+            $lop_query = new WP_Query(array(
+                'post_type' => 'lop',
+                'posts_per_page' => -1,
+                'orderby' => 'title',
+                'order' => 'ASC'
+            ));
+            
+            if ($lop_query->have_posts()) {
+                while ($lop_query->have_posts()) {
+                    $lop_query->the_post();
+                    $selected = (isset($_POST['lop']) && intval($_POST['lop']) === get_the_ID()) ? 'selected' : '';
+                    echo '<option value="' . get_the_ID() . '" ' . $selected . '>' . get_the_title() . '</option>';
+                }
+            }
+            wp_reset_postdata();
+            
+            echo '</select>';
+        }
+        echo '</div>';
+        
+        // Môn học
+        echo '<div class="form-group">';
+        echo '<label for="mon_hoc">Môn học:</label>';
+        
+        if ($mon_hoc_id > 0) {
+            // Nếu đã có môn học được chọn từ tham số, hiển thị dưới dạng hidden field
+            $mon_hoc_name = get_the_title($mon_hoc_id);
+            echo '<input type="hidden" name="mon_hoc" value="' . esc_attr($mon_hoc_id) . '">';
+            echo '<p><strong>' . esc_html($mon_hoc_name) . '</strong></p>';
+        } else {
+            // Nếu chưa có môn học, hiển thị dropdown để chọn
+            echo '<select name="mon_hoc" id="mon_hoc" required>';
+            echo '<option value="">Chọn môn học</option>';
+            
+            // Lấy danh sách môn học
+            $monhoc_query = new WP_Query(array(
+                'post_type' => 'monhoc',
+                'posts_per_page' => -1,
+                'orderby' => 'title',
+                'order' => 'ASC'
+            ));
+            
+            if ($monhoc_query->have_posts()) {
+                while ($monhoc_query->have_posts()) {
+                    $monhoc_query->the_post();
+                    $selected = (isset($_POST['mon_hoc']) && intval($_POST['mon_hoc']) === get_the_ID()) ? 'selected' : '';
+                    echo '<option value="' . get_the_ID() . '" ' . $selected . '>' . get_the_title() . '</option>';
+                }
+            }
+            wp_reset_postdata();
+            
+            echo '</select>';
+        }
+        echo '</div>';
+        
+        // Ngày điểm danh
+        $today = date('Y-m-d');
+        echo '<div class="form-group">';
+        echo '<label for="ngay">Ngày điểm danh:</label>';
+        echo '<input type="date" name="ngay" id="ngay" value="' . (isset($_POST['ngay']) ? esc_attr($_POST['ngay']) : $today) . '" required>';
+        echo '</div>';
+        
+        // Nonce field
+        wp_nonce_field('submit_diemdanh', 'diemdanh_nonce');
+        
+        // Submit button
+        echo '<button type="submit" name="submit_diemdanh" class="button button-primary">Tạo điểm danh</button>';
+        echo '</form>';
+        
+        // Hiển thị danh sách sinh viên trong lớp nếu có lớp được chọn
+        if ($lop_id > 0) {
+            // Lấy danh sách sinh viên của lớp này
+            $students = $this->get_students_by_class($lop_id);
+            
+            if (!empty($students)) {
+                echo '<h3>Danh sách sinh viên lớp: ' . get_the_title($lop_id) . '</h3>';
+                echo '<table class="widefat striped">';
+                echo '<thead>';
+                echo '<tr>';
+                echo '<th>STT</th>';
+                echo '<th>MSSV</th>';
+                echo '<th>Họ và tên</th>';
+                echo '<th>Email</th>';
+                echo '<th>Ngày sinh</th>';
+                echo '<th>Khoa</th>';
+                echo '</tr>';
+                echo '</thead>';
+                echo '<tbody>';
+                
+                $stt = 1;
+                foreach ($students as $student) {
+                    echo '<tr>';
+                    echo '<td>' . $stt++ . '</td>';
+                    echo '<td>' . esc_html($student['mssv']) . '</td>';
+                    echo '<td>' . esc_html($student['name']) . '</td>';
+                    echo '<td>' . esc_html($student['email']) . '</td>';
+                    echo '<td>' . esc_html($student['dob']) . '</td>';
+                    echo '<td>' . esc_html($student['khoa']) . '</td>';
+                    echo '</tr>';
+                }
+                
+                echo '</tbody>';
+                echo '</table>';
+            } else {
+                echo '<div class="diemdanh-error">';
+                echo '<p>Không tìm thấy sinh viên nào trong lớp này.</p>';
+                echo '</div>';
+            }
+        }
+        
+        return ob_get_clean();
+    }
+    
+    /**
+     * Shortcode hiển thị danh sách điểm danh
+     */
+    public function diemdanh_list_shortcode($atts) {
+        // Tham số mặc định
+        $atts = shortcode_atts(array(
+            'sinhvien_id' => 0,
+        ), $atts);
+        
+        $sinhvien_id = intval($atts['sinhvien_id']);
+        
+        ob_start();
+        
+        // Xác định vai trò người dùng
+        $current_user = wp_get_current_user();
+        $is_admin = current_user_can('manage_options');
+        $is_teacher = current_user_can('edit_posts') || $is_admin;
+        $is_student = !$is_teacher;
+        
+        // Lớp học và môn học để lọc
+        $lop_id = isset($_GET['lop']) ? intval($_GET['lop']) : 0;
+        $mon_hoc_id = isset($_GET['mon_hoc']) ? intval($_GET['mon_hoc']) : 0;
+        
+        // SINH VIÊN hoặc xem theo sinh viên cụ thể
+        if ($sinhvien_id > 0 || $is_student) {
+            // Nếu có sinhvien_id được chỉ định, sử dụng nó
+            if ($sinhvien_id > 0) {
+                $sv_id = $sinhvien_id;
+                $student_lop_id = get_field('lop', $sv_id);
+                $student_name = get_the_title($sv_id);
+            } else {
+                // Nếu không có sinhvien_id, tìm sinh viên từ user hiện tại
+                $sv_args = array(
+                    'post_type' => 'sinhvien',
+                    'posts_per_page' => 1,
+                    'meta_query' => array(
+                        array(
+                            'key' => 'email',
+                            'value' => $current_user->user_email,
+                            'compare' => '='
+                        )
+                    )
+                );
+                
+                $sv_query = new WP_Query($sv_args);
+                
+                if ($sv_query->have_posts()) {
+                    $sv_query->the_post();
+                    $sv_id = get_the_ID();
+                    $student_lop_id = get_field('lop', $sv_id);
+                    $student_name = get_the_title();
+                    
+                    // Reset post data
+                    wp_reset_postdata();
+                } else {
+                    echo '<div class="diemdanh-error">';
+                    echo '<p>Không tìm thấy thông tin sinh viên trong hệ thống.</p>';
+                    echo '</div>';
+                    return ob_get_clean();
+                }
+            }
+            
+            echo '<h3>Thông tin điểm danh sinh viên ' . esc_html($student_name) . '</h3>';
+            
+            if ($student_lop_id) {
+                echo '<p>Lớp: <strong>' . get_the_title($student_lop_id) . '</strong></p>';
+                
+                // Form chọn môn học
+                echo '<form class="diemdanh-filter-form" method="get">';
+                if ($sinhvien_id > 0) {
+                    echo '<input type="hidden" name="sinhvien_id" value="' . $sinhvien_id . '">';
+                }
+                echo '<input type="hidden" name="tab" value="view">';
+                
+                // Môn học
+                echo '<div class="form-group">';
+                echo '<label for="mon_hoc">Chọn môn học:</label>';
+                echo '<select name="mon_hoc" id="mon_hoc">';
+                echo '<option value="">Tất cả môn học</option>';
+                
+                // Lấy danh sách môn học
+                $monhoc_query = new WP_Query(array(
+                    'post_type' => 'monhoc',
+                    'posts_per_page' => -1,
+                    'orderby' => 'title',
+                    'order' => 'ASC'
+                ));
+                
+                if ($monhoc_query->have_posts()) {
+                    while ($monhoc_query->have_posts()) {
+                        $monhoc_query->the_post();
+                        $selected = ($mon_hoc_id === get_the_ID()) ? 'selected' : '';
+                        echo '<option value="' . get_the_ID() . '" ' . $selected . '>' . get_the_title() . '</option>';
+                    }
+                }
+                wp_reset_postdata();
+                
+                echo '</select>';
+                echo '</div>';
+                
+                echo '<button type="submit">Xem</button>';
+                echo '</form>';
+                
+                // Hiển thị thông tin điểm danh
+                $this->display_student_attendance($sv_id, $student_lop_id, $mon_hoc_id);
+            } else {
+                echo '<p>Không tìm thấy thông tin lớp của sinh viên.</p>';
+            }
+        } else {
+            // GIÁO VIÊN và ADMIN xem tất cả điểm danh
+            
+            // Form filter
+            echo '<form class="diemdanh-filter-form" method="get">';
+            echo '<input type="hidden" name="tab" value="view">';
+            
+            // Lớp học
+            echo '<div class="form-group">';
+            echo '<label for="lop">Lớp học:</label>';
+            echo '<select name="lop" id="lop">';
+            echo '<option value="">Tất cả lớp</option>';
+            
+            // Lấy danh sách lớp
+            $lop_query = new WP_Query(array(
+                'post_type' => 'lop',
+                'posts_per_page' => -1,
+                'orderby' => 'title',
+                'order' => 'ASC'
+            ));
+            
+            if ($lop_query->have_posts()) {
+                while ($lop_query->have_posts()) {
+                    $lop_query->the_post();
+                    $selected = ($lop_id === get_the_ID()) ? 'selected' : '';
+                    echo '<option value="' . get_the_ID() . '" ' . $selected . '>' . get_the_title() . '</option>';
+                }
+            }
+            wp_reset_postdata();
+            
+            echo '</select>';
+            echo '</div>';
+            
+            // Môn học
+            echo '<div class="form-group">';
+            echo '<label for="mon_hoc">Môn học:</label>';
+            echo '<select name="mon_hoc" id="mon_hoc">';
+            echo '<option value="">Tất cả môn học</option>';
+            
+            // Lấy danh sách môn học
+            $monhoc_query = new WP_Query(array(
+                'post_type' => 'monhoc',
+                'posts_per_page' => -1,
+                'orderby' => 'title',
+                'order' => 'ASC'
+            ));
+            
+            if ($monhoc_query->have_posts()) {
+                while ($monhoc_query->have_posts()) {
+                    $monhoc_query->the_post();
+                    $selected = ($mon_hoc_id === get_the_ID()) ? 'selected' : '';
+                    echo '<option value="' . get_the_ID() . '" ' . $selected . '>' . get_the_title() . '</option>';
+                }
+            }
+            wp_reset_postdata();
+            
+            echo '</select>';
+            echo '</div>';
+            
+            // Submit button
+            echo '<button type="submit">Lọc</button>';
+            echo '</form>';
+            
+            // Danh sách điểm danh
+            $args = array(
+                'post_type' => 'diemdanh',
+                'posts_per_page' => 20,
+                'orderby' => 'date',
+                'order' => 'DESC'
+            );
+            
+            // Thêm điều kiện lọc
+            $meta_query = array();
+            
+            if ($lop_id > 0) {
+                $meta_query[] = array(
+                    'key' => 'lop',
+                    'value' => $lop_id,
+                    'compare' => '='
+                );
+            }
+            
+            if ($mon_hoc_id > 0) {
+                $meta_query[] = array(
+                    'key' => 'mon_hoc',
+                    'value' => $mon_hoc_id,
+                    'compare' => '='
+                );
+            }
+            
+            if (!empty($meta_query)) {
+                $args['meta_query'] = array(
+                    'relation' => 'AND',
+                    $meta_query
+                );
+            }
+            
+            $diemdanh_query = new WP_Query($args);
+            
+            if ($diemdanh_query->have_posts()) {
+                echo '<table class="diemdanh-table">';
+                echo '<thead>';
+                echo '<tr>';
+                echo '<th>Tiêu đề</th>';
+                echo '<th>Lớp</th>';
+                echo '<th>Môn học</th>';
+                echo '<th>Ngày</th>';
+                echo '<th>Thao tác</th>';
+                echo '</tr>';
+                echo '</thead>';
+                echo '<tbody>';
+                
+                while ($diemdanh_query->have_posts()) {
+                    $diemdanh_query->the_post();
+                    $post_id = get_the_ID();
+                    
+                    $lop_id = get_field('lop', $post_id);
+                    $mon_hoc_id = get_field('mon_hoc', $post_id);
+                    $ngay = get_field('ngay', $post_id);
+                    
+                    $lop_name = $lop_id ? get_the_title($lop_id) : 'N/A';
+                    $mon_hoc_name = $mon_hoc_id ? get_the_title($mon_hoc_id) : 'N/A';
+                    $ngay_format = $ngay ? date_i18n('d/m/Y', strtotime($ngay)) : 'N/A';
+                    
+                    echo '<tr>';
+                    echo '<td>' . get_the_title() . '</td>';
+                    echo '<td>' . $lop_name . '</td>';
+                    echo '<td>' . $mon_hoc_name . '</td>';
+                    echo '<td>' . $ngay_format . '</td>';
+                    echo '<td>';
+                    echo '<a href="' . get_edit_post_link($post_id) . '" class="button">Chỉnh sửa</a>';
+                    echo '</td>';
+                    echo '</tr>';
+                }
+                
+                echo '</tbody>';
+                echo '</table>';
+                
+                // Pagination
+                $big = 999999999;
+                echo '<div class="pagination">';
+                echo paginate_links(array(
+                    'base' => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
+                    'format' => '?paged=%#%',
+                    'current' => max(1, get_query_var('paged')),
+                    'total' => $diemdanh_query->max_num_pages
+                ));
+                echo '</div>';
+                
+            } else {
+                echo '<p>Không tìm thấy bản ghi điểm danh nào.</p>';
+            }
+            
+            wp_reset_postdata();
+        }
+        
+        return ob_get_clean();
+    }
+    
+    /**
+     * Hiển thị thông tin điểm danh của sinh viên
+     */
+    private function display_student_attendance($sv_id, $lop_id, $mon_hoc_id = 0) {
+        // Args để lấy điểm danh
+        $args = array(
+            'post_type' => 'diemdanh',
+            'posts_per_page' => -1,
+            'meta_query' => array(
+                array(
+                    'key' => 'lop',
+                    'value' => $lop_id,
+                    'compare' => '='
+                )
+            ),
+            'orderby' => 'date',
+            'order' => 'DESC'
+        );
+        
+        // Thêm lọc theo môn học nếu có
+        if ($mon_hoc_id > 0) {
+            $args['meta_query'][] = array(
+                'key' => 'mon_hoc',
+                'value' => $mon_hoc_id,
+                'compare' => '='
+            );
+        }
+        
+        $diemdanh_query = new WP_Query($args);
+        
+        if ($diemdanh_query->have_posts()) {
+            echo '<table class="diemdanh-table">';
+            echo '<thead>';
+            echo '<tr>';
+            echo '<th>Môn học</th>';
+            echo '<th>Ngày</th>';
+            echo '<th>Trạng thái</th>';
+            echo '</tr>';
+            echo '</thead>';
+            echo '<tbody>';
+            
+            $absent_count = 0;
+            $total_count = 0;
+            
+            while ($diemdanh_query->have_posts()) {
+                $diemdanh_query->the_post();
+                $diemdanh_id = get_the_ID();
+                $mon_id = get_field('mon_hoc', $diemdanh_id);
+                $mon_name = get_the_title($mon_id);
+                $ngay = get_field('ngay', $diemdanh_id);
+                $ngay_format = date_i18n('d/m/Y', strtotime($ngay));
+                
+                // Lấy trạng thái điểm danh của sinh viên này
+                $sinh_vien_status = get_post_meta($diemdanh_id, 'sinh_vien_status', true);
+                $status = isset($sinh_vien_status[$sv_id]) ? $sinh_vien_status[$sv_id] : 'absent';
+                
+                $status_text = $status === 'present' ? 'Có mặt' : 'Vắng mặt';
+                $status_class = $status === 'present' ? 'status-present' : 'status-absent';
+                
+                if ($status === 'absent') {
+                    $absent_count++;
+                }
+                $total_count++;
+                
+                echo '<tr>';
+                echo '<td>' . $mon_name . '</td>';
+                echo '<td>' . $ngay_format . '</td>';
+                echo '<td class="' . $status_class . '">' . $status_text . '</td>';
+                echo '</tr>';
+            }
+            
+            echo '</tbody>';
+            echo '</table>';
+            
+            // Tổng kết
+            echo '<div style="margin-top: 15px;">';
+            echo '<p><strong>Tổng số buổi học:</strong> ' . $total_count . '</p>';
+            echo '<p><strong>Số buổi vắng:</strong> ' . $absent_count . '</p>';
+            echo '<p><strong>Tỷ lệ vắng:</strong> ' . ($total_count > 0 ? round(($absent_count / $total_count) * 100, 2) : 0) . '%</p>';
+            echo '</div>';
+            
+        } else {
+            echo '<p>Chưa có dữ liệu điểm danh nào.</p>';
+        }
+        
+        wp_reset_postdata();
+    }
+    
+    /**
+     * Xử lý form điểm danh
+     */
+    public function handle_diemdanh_form() {
+        if (!isset($_POST['diemdanh_action']) || !isset($_POST['diemdanh_nonce']) || !wp_verify_nonce($_POST['diemdanh_nonce'], 'diemdanh_action')) {
+            return;
+        }
+
+        // Xử lý cập nhật điểm danh
+        if ($_POST['diemdanh_action'] === 'update' && isset($_POST['diemdanh_id']) && isset($_POST['sinh_vien_status'])) {
+            $diemdanh_id = intval($_POST['diemdanh_id']);
+            $sinh_vien_status = $_POST['sinh_vien_status'];
+            
+            // Mảng để lưu thông tin cập nhật
+            $updated_data = [];
+            
+            foreach ($sinh_vien_status as $sv_id => $status) {
+                $sv_id = intval($sv_id);
+                $status = sanitize_text_field($status);
+                
+                // Lưu vào mảng
+                if ($sv_id > 0) {
+                    $updated_data[$sv_id] = $status;
+                }
+            }
+            
+            // Cập nhật meta field cho post điểm danh
+            if (!empty($updated_data)) {
+                update_post_meta($diemdanh_id, 'sinh_vien_status', $updated_data);
+                
+                // Chuyển hướng lại với thông báo thành công
+                wp_redirect(add_query_arg('updated', '1', wp_get_referer()));
+                exit;
+            }
+        }
+    }
+    
+    /**
+     * Xử lý AJAX cập nhật điểm danh
+     */
+    public function ajax_update_diemdanh() {
+        // Kiểm tra nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'diemdanh_ajax_nonce')) {
+            wp_send_json_error('Lỗi bảo mật!');
+        }
+        
+        // Kiểm tra dữ liệu
+        if (!isset($_POST['diemdanh_id']) || !isset($_POST['sinh_vien_id']) || !isset($_POST['status'])) {
+            wp_send_json_error('Thiếu dữ liệu cần thiết!');
+        }
+        
+        $diemdanh_id = intval($_POST['diemdanh_id']);
+        $sinh_vien_id = intval($_POST['sinh_vien_id']);
+        $status = sanitize_text_field($_POST['status']);
+        
+        // Lấy dữ liệu hiện tại
+        $current_data = get_post_meta($diemdanh_id, 'sinh_vien_status', true);
+        if (empty($current_data) || !is_array($current_data)) {
+            $current_data = array();
+        }
+        
+        // Cập nhật dữ liệu
+        $current_data[$sinh_vien_id] = $status;
+        
+        // Lưu lại
+        $updated = update_post_meta($diemdanh_id, 'sinh_vien_status', $current_data);
+        
+        if ($updated) {
+            wp_send_json_success('Đã cập nhật trạng thái điểm danh.');
+        } else {
+            wp_send_json_error('Không thể cập nhật trạng thái điểm danh!');
+        }
+    }
+
+    /**
+     * Đăng ký template tùy chỉnh cho trang archive điểm danh
+     */
+    public function register_diemdanh_archive_template($template) {
+        if (is_post_type_archive('diemdanh')) {
+            $custom_template = QLSV_PLUGIN_DIR . 'templates/archive-diemdanh.php';
+            if (file_exists($custom_template)) {
+                return $custom_template;
+            }
+        }
+        return $template;
+    }
+
+    /**
+     * Đăng ký template tùy chỉnh cho trang single điểm danh
+     */
+    public function register_diemdanh_single_template($template) {
+        if (is_singular('diemdanh')) {
+            $custom_template = QLSV_PLUGIN_DIR . 'templates/single-diemdanh.php';
+            if (file_exists($custom_template)) {
+                return $custom_template;
+            }
+        }
+        return $template;
+    }
+
+    /**
+     * Handle diemdanh queries to prevent 404 errors with params
+     */
+    public function handle_diemdanh_queries($query) {
+        // Xử lý các tham số lop và mon_hoc
+        $lop_id = isset($_GET['lop']) ? intval($_GET['lop']) : 0;
+        $mon_hoc_id = isset($_GET['mon_hoc']) ? intval($_GET['mon_hoc']) : 0;
+        
+        // Kiểm tra nếu trang hiện tại là archive diemdanh hoặc có tham số lop/mon_hoc
+        if (($query->is_main_query() && $query->is_post_type_archive('diemdanh')) || 
+            ($query->is_main_query() && !empty($lop_id) && !empty($mon_hoc_id))) {
+            
+            // Thiết lập các query var cần thiết
+            $query->set('post_type', 'diemdanh');
+            
+            // Đặt là archive diemdanh để sử dụng template đúng
+            $query->is_archive = true;
+            $query->is_post_type_archive = true;
+            $query->is_singular = false;
+            $query->is_single = false;
+            $query->is_page = false;
+            
+            // Đánh dấu là không phải 404
+            $query->is_404 = false;
+            
+            // Không thiết lập số lượng bài viết, sẽ được xử lý trong template
+            if (!empty($lop_id) && !empty($mon_hoc_id)) {
+                $query->set('lop', $lop_id);
+                $query->set('mon_hoc', $mon_hoc_id);
+                
+                // Bắt lấy dữ liệu từ query var
+                set_query_var('lop', $lop_id);
+                set_query_var('mon_hoc', $mon_hoc_id);
+            }
+            
+            // Tạo dummy post để đảm bảo không có lỗi từ theme
+            global $post, $wp_query;
+            if (!isset($wp_query->posts) || empty($wp_query->posts)) {
+                $dummy_post = new stdClass();
+                $dummy_post->ID = 0;
+                $dummy_post->post_type = 'diemdanh';
+                $dummy_post->post_title = 'Điểm Danh';
+                $dummy_post->post_name = 'diemdanh';
+                $dummy_post->post_content = '';
+                $dummy_post->comment_count = 0;
+                $dummy_post->post_status = 'publish';
+                $dummy_post->comment_status = 'closed';
+                $dummy_post->post_author = 1;
+                $dummy_post->post_date = date('Y-m-d H:i:s');
+                $dummy_post->post_date_gmt = date('Y-m-d H:i:s');
+                
+                // Thiết lập post đầu tiên trong danh sách posts
+                $wp_query->posts = array($dummy_post);
+                $wp_query->post_count = 1;
+                $wp_query->found_posts = 1;
+                $post = $dummy_post;
+            }
+            
+            return;
+        }
+    }
+
+    /**
+     * Generate proper URL for diemdanh with parameters
+     * 
+     * @param int $lop_id The class ID
+     * @param int $mon_hoc_id The subject ID
+     * @return string The URL
+     */
+    public function get_diemdanh_url($lop_id, $mon_hoc_id) {
+        // Use direct query parameters which are more reliable
+        return add_query_arg(
+            array(
+                'lop' => $lop_id,
+                'mon_hoc' => $mon_hoc_id
+            ),
+            home_url('/diemdanh/')
+        );
+    }
+
+    /**
+     * Lấy danh sách sinh viên theo lớp
+     * 
+     * @param int $lop_id ID của lớp cần lấy sinh viên
+     * @return array Danh sách sinh viên của lớp
+     */
+    public function get_students_by_class($lop_id) {
+        $students = array();
+        
+        if (!$lop_id) {
+            return $students;
+        }
+        
+        // Query để lấy sinh viên theo lớp
         $args = array(
             'post_type' => 'sinhvien',
             'posts_per_page' => -1,
@@ -405,830 +1441,42 @@ class QLSV_DiemDanh {
                     'value' => $lop_id,
                     'compare' => '='
                 )
-            )
+            ),
+            'orderby' => 'meta_value',
+            'meta_key' => 'ho_ten',
+            'order' => 'ASC'
         );
         
-        $students = get_posts($args);
+        $student_query = new WP_Query($args);
         
-        if (empty($students)) {
-            wp_send_json_error('Không có sinh viên nào thuộc lớp này.');
-            return;
-        }
-        
-        // Tạo danh sách sinh viên điểm danh
-        $student_list = array();
-        
-        foreach ($students as $student) {
-            $student_list[] = array(
-                'sinh_vien_id' => $student->ID,
-                'trang_thai' => 'co_mat',
-                'ghi_chu' => ''
-            );
-        }
-        
-        // Cập nhật ACF field
-        update_field('sinh_vien_dd', $student_list, $post_id);
-        
-        wp_send_json_success('Đã cập nhật danh sách sinh viên thành công.');
-    }
-    
-    /**
-     * Xử lý AJAX hiển thị chi tiết điểm danh
-     */
-    public function ajax_get_diemdanh_detail() {
-        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-        
-        if (!$post_id) {
-            wp_send_json_error('ID không hợp lệ.');
-            return;
-        }
-        
-        // Kiểm tra loại post
-        if (get_post_type($post_id) !== 'diemdanh') {
-            wp_send_json_error('Không phải bản ghi điểm danh.');
-            return;
-        }
-        
-        // Lấy thông tin cơ bản
-        $mon_hoc_id = get_field('mon_hoc', $post_id);
-        $lop_id = get_field('lop', $post_id);
-        $ngay = get_field('ngay', $post_id);
-        $buoi_hoc = get_field('buoi_hoc', $post_id);
-        $giang_vien_id = get_field('giang_vien', $post_id);
-        $ghi_chu = get_field('ghi_chu', $post_id);
-        $sinh_vien_dd = get_field('sinh_vien_dd', $post_id);
-        
-        // Lấy tên môn học và lớp
-        $mon_hoc = $mon_hoc_id ? get_the_title($mon_hoc_id) : 'N/A';
-        $lop = $lop_id ? get_the_title($lop_id) : 'N/A';
-        
-        // Format ngày
-        $ngay_format = $ngay ? date_i18n('d/m/Y', strtotime($ngay)) : 'N/A';
-        
-        // Lấy tên giảng viên
-        $giang_vien = '';
-        if ($giang_vien_id) {
-            $user_data = get_userdata($giang_vien_id);
-            if ($user_data) {
-                $giang_vien = $user_data->display_name;
-            }
-        }
-        
-        // HTML output
-        ob_start();
-        ?>
-        <div class="diemdanh-detail">
-            <h3><?php echo esc_html(get_the_title($post_id)); ?></h3>
-            
-            <div class="diemdanh-info">
-                <div class="info-item">
-                    <span class="info-label"><?php esc_html_e('Môn học:', 'qlsv'); ?></span>
-                    <span class="info-value"><?php echo esc_html($mon_hoc); ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label"><?php esc_html_e('Lớp:', 'qlsv'); ?></span>
-                    <span class="info-value"><?php echo esc_html($lop); ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label"><?php esc_html_e('Ngày:', 'qlsv'); ?></span>
-                    <span class="info-value"><?php echo esc_html($ngay_format); ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label"><?php esc_html_e('Buổi học số:', 'qlsv'); ?></span>
-                    <span class="info-value"><?php echo esc_html($buoi_hoc); ?></span>
-                </div>
-                <?php if (!empty($giang_vien)) : ?>
-                <div class="info-item">
-                    <span class="info-label"><?php esc_html_e('Giảng viên:', 'qlsv'); ?></span>
-                    <span class="info-value"><?php echo esc_html($giang_vien); ?></span>
-                </div>
-                <?php endif; ?>
-            </div>
-            
-            <?php if (!empty($ghi_chu)) : ?>
-            <div class="diemdanh-ghi-chu">
-                <h4><?php esc_html_e('Ghi chú buổi học:', 'qlsv'); ?></h4>
-                <div class="ghi-chu-content"><?php echo nl2br(esc_html($ghi_chu)); ?></div>
-            </div>
-            <?php endif; ?>
-            
-            <div class="diemdanh-students">
-                <h4><?php esc_html_e('Danh sách sinh viên:', 'qlsv'); ?></h4>
-                
-                <?php if (empty($sinh_vien_dd)) : ?>
-                    <p><?php esc_html_e('Chưa có dữ liệu điểm danh.', 'qlsv'); ?></p>
-                <?php else : ?>
-                    <table class="students-table">
-                        <thead>
-                            <tr>
-                                <th><?php esc_html_e('STT', 'qlsv'); ?></th>
-                                <th><?php esc_html_e('Mã SV', 'qlsv'); ?></th>
-                                <th><?php esc_html_e('Họ tên', 'qlsv'); ?></th>
-                                <th><?php esc_html_e('Trạng thái', 'qlsv'); ?></th>
-                                <th><?php esc_html_e('Ghi chú', 'qlsv'); ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php 
-                            $stt = 1;
-                            foreach ($sinh_vien_dd as $sv_dd) :
-                                $sv_id = $sv_dd['sinh_vien_id'];
-                                $trang_thai = $sv_dd['trang_thai'];
-                                $ghi_chu_sv = isset($sv_dd['ghi_chu']) ? $sv_dd['ghi_chu'] : '';
-                                
-                                // Lấy thông tin sinh viên
-                                $sinh_vien = get_post($sv_id);
-                                if (!$sinh_vien) continue;
-                                
-                                $ma_sv = get_field('ma_sinh_vien', $sv_id);
-                                $ho_ten = $sinh_vien->post_title;
-                                
-                                // Hiển thị trạng thái dễ đọc
-                                $trang_thai_text = '';
-                                $trang_thai_class = '';
-                                
-                                switch ($trang_thai) {
-                                    case 'co_mat':
-                                        $trang_thai_text = __('Có mặt', 'qlsv');
-                                        $trang_thai_class = 'status-present';
-                                        break;
-                                    case 'vang':
-                                        $trang_thai_text = __('Vắng', 'qlsv');
-                                        $trang_thai_class = 'status-absent';
-                                        break;
-                                    case 'di_muon':
-                                        $trang_thai_text = __('Đi muộn', 'qlsv');
-                                        $trang_thai_class = 'status-late';
-                                        break;
-                                    case 've_som':
-                                        $trang_thai_text = __('Về sớm', 'qlsv');
-                                        $trang_thai_class = 'status-early';
-                                        break;
-                                    case 'co_phep':
-                                        $trang_thai_text = __('Có phép', 'qlsv');
-                                        $trang_thai_class = 'status-excused';
-                                        break;
-                                    default:
-                                        $trang_thai_text = __('Không xác định', 'qlsv');
-                                        $trang_thai_class = '';
-                                        break;
-                                }
-                            ?>
-                            <tr class="<?php echo esc_attr($trang_thai_class); ?>">
-                                <td><?php echo $stt++; ?></td>
-                                <td><?php echo esc_html($ma_sv); ?></td>
-                                <td><?php echo esc_html($ho_ten); ?></td>
-                                <td><span class="trang-thai-label"><?php echo esc_html($trang_thai_text); ?></span></td>
-                                <td><?php echo esc_html($ghi_chu_sv); ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                <?php endif; ?>
-            </div>
-        </div>
-        
-        <style>
-            .diemdanh-detail h3 {
-                margin-top: 0;
-                margin-bottom: 15px;
-                border-bottom: 1px solid #eee;
-                padding-bottom: 10px;
-            }
-            .diemdanh-info {
-                display: flex;
-                flex-wrap: wrap;
-                margin-bottom: 20px;
-                background: #f9f9f9;
-                padding: 15px;
-                border-radius: 5px;
-            }
-            .info-item {
-                flex: 1 0 calc(50% - 20px);
-                margin-bottom: 10px;
-                padding-right: 20px;
-            }
-            .info-label {
-                font-weight: bold;
-                margin-right: 5px;
-            }
-            .diemdanh-ghi-chu {
-                margin-bottom: 20px;
-            }
-            .ghi-chu-content {
-                background: #f9f9f9;
-                padding: 10px;
-                border-radius: 5px;
-                font-style: italic;
-            }
-            .students-table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            .students-table th, 
-            .students-table td {
-                padding: 8px;
-                border: 1px solid #ddd;
-                text-align: left;
-            }
-            .students-table th {
-                background-color: #f2f2f2;
-                font-weight: bold;
-            }
-            .trang-thai-label {
-                padding: 3px 8px;
-                border-radius: 3px;
-                font-size: 12px;
-                font-weight: bold;
-                white-space: nowrap;
-            }
-            tr.status-present .trang-thai-label {
-                background-color: #e8f8f0;
-                color: #27ae60;
-            }
-            tr.status-absent .trang-thai-label {
-                background-color: #fdedeb;
-                color: #c0392b;
-            }
-            tr.status-late .trang-thai-label {
-                background-color: #fef6e7;
-                color: #d35400;
-            }
-            tr.status-early .trang-thai-label {
-                background-color: #f4ecf7;
-                color: #8e44ad;
-            }
-            tr.status-excused .trang-thai-label {
-                background-color: #e8f6f3;
-                color: #16a085;
-            }
-            /* Thống kê dưới bảng */
-            .diemdanh-summary {
-                margin-top: 20px;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            .summary-item {
-                flex: 1 1 calc(20% - 10px);
-                min-width: 110px;
-                padding: 8px;
-                text-align: center;
-                border-radius: 4px;
-                font-size: 13px;
-                font-weight: bold;
-            }
-            .summary-present {
-                background-color: #e8f8f0;
-                color: #27ae60;
-            }
-            .summary-absent {
-                background-color: #fdedeb;
-                color: #c0392b;
-            }
-            .summary-late {
-                background-color: #fef6e7;
-                color: #d35400;
-            }
-            .summary-early {
-                background-color: #f4ecf7;
-                color: #8e44ad;
-            }
-            .summary-excused {
-                background-color: #e8f6f3;
-                color: #16a085;
-            }
-            @media (max-width: 768px) {
-                .info-item {
-                    flex: 1 0 100%;
-                }
-            }
-        </style>
-        <?php
-        
-        $html = ob_get_clean();
-        
-        wp_send_json_success($html);
-    }
-    
-    /**
-     * Shortcode hiển thị bảng điểm danh
-     */
-    public function diemdanh_shortcode($atts) {
-        // Tham số mặc định
-        $atts = shortcode_atts(array(
-            'lop_id' => 0,        // ID lớp
-            'monhoc_id' => 0,     // ID môn học
-            'giangvien_id' => 0,  // ID giảng viên
-        ), $atts);
-        
-        // Lấy tham số từ URL nếu có
-        $lop_from_get = isset($_GET['lop']) ? intval($_GET['lop']) : 0;
-        if ($lop_from_get > 0) {
-            $atts['lop_id'] = $lop_from_get;
-        }
-        
-        $monhoc_from_get = isset($_GET['monhoc']) ? intval($_GET['monhoc']) : 0;
-        if ($monhoc_from_get > 0) {
-            $atts['monhoc_id'] = $monhoc_from_get;
-        }
-
-        // Load template
-        ob_start();
-        
-        $template_path = QLSV_PLUGIN_DIR . 'templates/diemdanh-list.php';
-        
-        if (file_exists($template_path)) {
-            // Truy vấn dữ liệu điểm danh
-            $args = array(
-                'post_type' => 'diemdanh',
-                'posts_per_page' => -1,
-                'meta_query' => array('relation' => 'AND'),
-                'meta_key' => 'ngay',
-                'orderby' => 'meta_value',
-                'order' => 'DESC'
-            );
-            
-            // Lọc theo lớp
-            if (!empty($atts['lop_id'])) {
-                $args['meta_query'][] = array(
-                    'key' => 'lop',
-                    'value' => $atts['lop_id'],
-                    'compare' => '='
-                );
-            }
-            
-            // Lọc theo môn học
-            if (!empty($atts['monhoc_id'])) {
-                $args['meta_query'][] = array(
-                    'key' => 'mon_hoc',
-                    'value' => $atts['monhoc_id'],
-                    'compare' => '='
-                );
-            }
-            
-            // Lọc theo giảng viên
-            if (!empty($atts['giangvien_id'])) {
-                $args['meta_query'][] = array(
-                    'key' => 'giang_vien',
-                    'value' => $atts['giangvien_id'],
-                    'compare' => '='
-                );
-            }
-            
-            $diemdanh_query = new WP_Query($args);
-            
-            // Lấy danh sách lớp và môn học cho bộ lọc
-            $all_classes = get_posts(array(
-                'post_type' => 'lop',
-                'posts_per_page' => -1,
-                'orderby' => 'title',
-                'order' => 'ASC'
-            ));
-            
-            $all_courses = get_posts(array(
-                'post_type' => 'monhoc',
-                'posts_per_page' => -1,
-                'orderby' => 'title',
-                'order' => 'ASC'
-            ));
-            
-            include $template_path;
-            
-            wp_reset_postdata();
-        } else {
-            echo 'Template không tồn tại.';
-        }
-        
-        return ob_get_clean();
-    }
-    
-    /**
-     * Shortcode hiển thị thống kê điểm danh của sinh viên
-     */
-    public function diemdanh_sinhvien_shortcode($atts) {
-        // Tham số mặc định
-        $atts = shortcode_atts(array(
-            'sinhvien_id' => 0,   // ID sinh viên, nếu 0 sẽ lấy từ user hiện tại
-            'monhoc_id' => 0,     // ID môn học, nếu 0 sẽ hiển thị tất cả
-        ), $atts);
-        
-        // Kiểm tra sinh viên
-        $sinh_vien_id = intval($atts['sinhvien_id']);
-        
-        // Nếu không có ID sinh viên, thử lấy từ user hiện tại
-        if ($sinh_vien_id <= 0 && is_user_logged_in()) {
-            $current_user = wp_get_current_user();
-            $user_email = $current_user->user_email;
-            
-            // Tìm sinh viên có email trùng với email user
-            $args = array(
-                'post_type' => 'sinhvien',
-                'posts_per_page' => 1,
-                'meta_query' => array(
-                    array(
-                        'key' => 'email',
-                        'value' => $user_email,
-                        'compare' => '='
-                    )
-                )
-            );
-            
-            $student_query = new WP_Query($args);
-            
-            if ($student_query->have_posts()) {
+        if ($student_query->have_posts()) {
+            while ($student_query->have_posts()) {
                 $student_query->the_post();
-                $sinh_vien_id = get_the_ID();
+                $student_id = get_the_ID();
+                
+                // Lấy thông tin từ các trường ACF
+                $ho_ten = get_field('ho_ten', $student_id) ? get_field('ho_ten', $student_id) : get_the_title($student_id);
+                $ma_sinh_vien = get_field('ma_sinh_vien', $student_id);
+                $email = get_field('email', $student_id);
+                $so_dien_thoai = get_field('so_dien_thoai', $student_id);
+                $ngay_sinh = get_field('ngay_sinh', $student_id);
+                $khoa = get_field('khoa', $student_id);
+                
+                // Thêm sinh viên vào mảng kết quả
+                $students[] = array(
+                    'id' => $student_id,
+                    'name' => $ho_ten,
+                    'mssv' => $ma_sinh_vien,
+                    'email' => $email,
+                    'phone' => $so_dien_thoai,
+                    'dob' => $ngay_sinh,
+                    'khoa' => $khoa,
+                    'lop_id' => $lop_id
+                );
             }
-            
             wp_reset_postdata();
         }
         
-        // Nếu không có sinh viên nào được xác định
-        if ($sinh_vien_id <= 0) {
-            return '<div class="diemdanh-thongbao">Không thể xác định sinh viên. Vui lòng đăng nhập hoặc chỉ định ID sinh viên.</div>';
-        }
-
-        // Load template
-        ob_start();
-        
-        $template_path = QLSV_PLUGIN_DIR . 'templates/diemdanh-sinhvien.php';
-        
-        if (file_exists($template_path)) {
-            // Lấy thông tin sinh viên
-            $sinh_vien = get_post($sinh_vien_id);
-            
-            if (!$sinh_vien) {
-                return '<div class="diemdanh-thongbao">Không tìm thấy thông tin sinh viên.</div>';
-            }
-            
-            // Danh sách môn học để lọc
-            $mon_hoc_list = array();
-            
-            // Nếu có môn học cụ thể
-            $monhoc_id = intval($atts['monhoc_id']);
-            if ($monhoc_id > 0) {
-                $mon_hoc = get_post($monhoc_id);
-                if ($mon_hoc) {
-                    $mon_hoc_list[$mon_hoc->ID] = $mon_hoc->post_title;
-                }
-            } else {
-                // Lấy tất cả các buổi điểm danh của sinh viên
-                $diemdanh_args = array(
-                    'post_type' => 'diemdanh',
-                    'posts_per_page' => -1,
-                    'meta_query' => array(
-                        array(
-                            'key' => 'sinh_vien_dd',
-                            'value' => '"' . $sinh_vien_id . '"',
-                            'compare' => 'LIKE'
-                        )
-                    )
-                );
-                
-                $diemdanh_query = new WP_Query($diemdanh_args);
-                
-                $monhoc_ids = array();
-                while ($diemdanh_query->have_posts()) {
-                    $diemdanh_query->the_post();
-                    $monhoc_id = get_field('mon_hoc', get_the_ID());
-                    if ($monhoc_id && !in_array($monhoc_id, $monhoc_ids)) {
-                        $monhoc_ids[] = $monhoc_id;
-                    }
-                }
-                
-                wp_reset_postdata();
-                
-                // Lấy tên các môn học
-                foreach ($monhoc_ids as $id) {
-                    $mon_hoc = get_post($id);
-                    if ($mon_hoc) {
-                        $mon_hoc_list[$mon_hoc->ID] = $mon_hoc->post_title;
-                    }
-                }
-            }
-            
-            // Lấy thống kê điểm danh cho từng môn học
-            $diemdanh_stats = array();
-            
-            foreach ($mon_hoc_list as $mon_hoc_id => $mon_hoc_name) {
-                // Lấy tất cả buổi điểm danh của môn học này
-                $diemdanh_args = array(
-                    'post_type' => 'diemdanh',
-                    'posts_per_page' => -1,
-                    'meta_query' => array(
-                        'relation' => 'AND',
-                        array(
-                            'key' => 'mon_hoc',
-                            'value' => $mon_hoc_id,
-                            'compare' => '='
-                        )
-                    ),
-                    'meta_key' => 'ngay',
-                    'orderby' => 'meta_value',
-                    'order' => 'ASC'
-                );
-                
-                $diemdanh_query = new WP_Query($diemdanh_args);
-                
-                $buoi_list = array();
-                $stats = array(
-                    'tong_so_buoi' => 0,
-                    'co_mat' => 0,
-                    'vang' => 0,
-                    'di_muon' => 0,
-                    've_som' => 0,
-                    'co_phep' => 0
-                );
-                
-                while ($diemdanh_query->have_posts()) {
-                    $diemdanh_query->the_post();
-                    $post_id = get_the_ID();
-                    
-                    // Lấy thông tin cơ bản của buổi điểm danh
-                    $lop_id = get_field('lop', $post_id);
-                    $ngay = get_field('ngay', $post_id);
-                    $buoi_hoc = get_field('buoi_hoc', $post_id);
-                    
-                    // Lấy danh sách sinh viên điểm danh
-                    $sinh_vien_dd = get_field('sinh_vien_dd', $post_id);
-                    
-                    if ($sinh_vien_dd) {
-                        $stats['tong_so_buoi']++;
-                        
-                        $trang_thai = 'vang'; // Mặc định là vắng nếu không tìm thấy
-                        
-                        foreach ($sinh_vien_dd as $sv_dd) {
-                            if ($sv_dd['sinh_vien_id'] == $sinh_vien_id) {
-                                $trang_thai = $sv_dd['trang_thai'];
-                                $ghi_chu = isset($sv_dd['ghi_chu']) ? $sv_dd['ghi_chu'] : '';
-                                
-                                // Cập nhật thống kê
-                                $stats[$trang_thai]++;
-                                
-                                // Thêm vào danh sách buổi
-                                $buoi_list[] = array(
-                                    'id' => $post_id,
-                                    'buoi' => $buoi_hoc,
-                                    'ngay' => $ngay,
-                                    'ngay_format' => date_i18n('d/m/Y', strtotime($ngay)),
-                                    'trang_thai' => $trang_thai,
-                                    'ghi_chu' => $ghi_chu
-                                );
-                                
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                wp_reset_postdata();
-                
-                $diemdanh_stats[$mon_hoc_id] = array(
-                    'ten_mon' => $mon_hoc_name,
-                    'buoi_list' => $buoi_list,
-                    'stats' => $stats
-                );
-            }
-            
-            include $template_path;
-        } else {
-            echo 'Template không tồn tại.';
-        }
-        
-        return ob_get_clean();
-    }
-    
-    /**
-     * Shortcode hiển thị form điểm danh
-     */
-    public function diemdanh_form_shortcode($atts) {
-        // Tham số mặc định
-        $atts = shortcode_atts(array(
-            'lop_id' => 0,       // ID lớp mặc định
-            'monhoc_id' => 0,    // ID môn học mặc định
-        ), $atts);
-        
-        // Chỉ hiển thị form cho giáo viên và quản trị viên
-        if (!is_user_logged_in() || (!current_user_can('edit_posts') && !current_user_can('manage_options'))) {
-            return '<div class="diemdanh-error-message">
-                <p>' . __('Bạn không có quyền truy cập chức năng này.', 'qlsv') . '</p>
-            </div>';
-        }
-        
-        // Lấy danh sách lớp và môn học
-        $all_classes = get_posts(array(
-            'post_type' => 'lop',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC'
-        ));
-        
-        $all_courses = get_posts(array(
-            'post_type' => 'monhoc',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC'
-        ));
-        
-        // Tham số từ form
-        $lop_id = isset($_POST['lop_id']) ? intval($_POST['lop_id']) : intval($atts['lop_id']);
-        $mon_hoc_id = isset($_POST['mon_hoc_id']) ? intval($_POST['mon_hoc_id']) : intval($atts['monhoc_id']);
-        $selected_date = isset($_POST['ngay_diemdanh']) ? sanitize_text_field($_POST['ngay_diemdanh']) : date('Y-m-d');
-        $buoi_hoc = isset($_POST['buoi_hoc']) ? intval($_POST['buoi_hoc']) : 1;
-        
-        // Thông báo thành công
-        $success_message = '';
-        if (isset($_GET['diemdanh_saved']) && $_GET['diemdanh_saved'] === '1') {
-            $success_message = __('Điểm danh đã được lưu thành công!', 'qlsv');
-        } else if (isset($_GET['diemdanh_updated']) && $_GET['diemdanh_updated'] === '1') {
-            $success_message = __('Điểm danh đã được cập nhật thành công!', 'qlsv');
-        }
-        
-        // Load template
-        ob_start();
-        
-        $template_path = QLSV_PLUGIN_DIR . 'templates/diemdanh-form.php';
-        
-        if (file_exists($template_path)) {
-            include $template_path;
-        } else {
-            echo 'Template điểm danh không tồn tại.';
-        }
-        
-        return ob_get_clean();
-    }
-    
-    /**
-     * Xử lý form điểm danh
-     */
-    public function handle_diemdanh_form() {
-        // Kiểm tra quyền truy cập
-        if (!is_user_logged_in() || (!current_user_can('edit_posts') && !current_user_can('manage_options'))) {
-            return;
-        }
-        
-        // Xử lý lưu điểm danh
-        if (
-            isset($_POST['action']) && 
-            $_POST['action'] === 'save_diemdanh' && 
-            isset($_POST['save_diemdanh_nonce']) && 
-            wp_verify_nonce($_POST['save_diemdanh_nonce'], 'save_diemdanh_nonce')
-        ) {
-            // Lấy dữ liệu từ form
-            $lop_id = isset($_POST['lop_id']) ? intval($_POST['lop_id']) : 0;
-            $mon_hoc_id = isset($_POST['mon_hoc_id']) ? intval($_POST['mon_hoc_id']) : 0;
-            $ngay_diemdanh = isset($_POST['ngay_diemdanh']) ? sanitize_text_field($_POST['ngay_diemdanh']) : '';
-            $buoi_hoc = isset($_POST['buoi_hoc']) ? intval($_POST['buoi_hoc']) : 1;
-            $ghi_chu = isset($_POST['ghi_chu']) ? sanitize_textarea_field($_POST['ghi_chu']) : '';
-            $students = isset($_POST['students']) ? $_POST['students'] : array();
-            
-            // Kiểm tra dữ liệu
-            if (!$lop_id || !$mon_hoc_id || empty($ngay_diemdanh) || empty($students)) {
-                return;
-            }
-            
-            // Kiểm tra nếu đã có bản ghi điểm danh
-            $existing_id = isset($_POST['existing_id']) ? intval($_POST['existing_id']) : 0;
-            
-            // Chuẩn bị dữ liệu sinh viên
-            $student_data = array();
-            foreach ($students as $student_id => $student) {
-                if (!isset($student['id']) || !isset($student['status'])) {
-                    continue;
-                }
-                
-                $student_data[] = array(
-                    'sinh_vien_id' => intval($student['id']),
-                    'trang_thai' => sanitize_text_field($student['status']),
-                    'ghi_chu' => isset($student['note']) ? sanitize_text_field($student['note']) : ''
-                );
-            }
-            
-            // Nếu có ID hiện có, cập nhật post
-            if ($existing_id > 0) {
-                // Cập nhật ACF fields
-                update_field('lop', $lop_id, $existing_id);
-                update_field('mon_hoc', $mon_hoc_id, $existing_id);
-                update_field('ngay', $ngay_diemdanh, $existing_id);
-                update_field('buoi_hoc', $buoi_hoc, $existing_id);
-                update_field('ghi_chu', $ghi_chu, $existing_id);
-                update_field('sinh_vien_dd', $student_data, $existing_id);
-                
-                // Cập nhật tiêu đề
-                $this->update_diemdanh_title($existing_id);
-                
-                // Chuyển hướng với thông báo
-                wp_redirect(add_query_arg('diemdanh_updated', '1', remove_query_arg('diemdanh_saved', $_SERVER['REQUEST_URI'])));
-                exit;
-            } else {
-                // Tạo post mới
-                $post_data = array(
-                    'post_title' => sprintf(
-                        'Điểm danh %s - %s - %s - Buổi %d', 
-                        get_the_title($lop_id), 
-                        get_the_title($mon_hoc_id), 
-                        date_i18n('d/m/Y', strtotime($ngay_diemdanh)),
-                        $buoi_hoc
-                    ),
-                    'post_status' => 'publish',
-                    'post_type' => 'diemdanh'
-                );
-                
-                $post_id = wp_insert_post($post_data);
-                
-                if (!is_wp_error($post_id)) {
-                    // Cập nhật ACF fields
-                    update_field('lop', $lop_id, $post_id);
-                    update_field('mon_hoc', $mon_hoc_id, $post_id);
-                    update_field('ngay', $ngay_diemdanh, $post_id);
-                    update_field('buoi_hoc', $buoi_hoc, $post_id);
-                    update_field('ghi_chu', $ghi_chu, $post_id);
-                    update_field('sinh_vien_dd', $student_data, $post_id);
-                    
-                    // Cập nhật giảng viên nếu là người dùng hiện tại
-                    $current_user_id = get_current_user_id();
-                    if ($current_user_id > 0 && current_user_can('edit_posts')) {
-                        update_field('giang_vien', $current_user_id, $post_id);
-                    }
-                    
-                    // Chuyển hướng với thông báo
-                    wp_redirect(add_query_arg('diemdanh_saved', '1', remove_query_arg('diemdanh_updated', $_SERVER['REQUEST_URI'])));
-                    exit;
-                }
-            }
-        }
-    }
-    
-    /**
-     * Shortcode hiển thị bảng điều khiển điểm danh
-     */
-    public function diemdanh_dashboard_shortcode($atts) {
-        // Tham số mặc định
-        $atts = shortcode_atts(array(
-            'default_tab' => '', // Tab mặc định (form, view, stats)
-        ), $atts);
-        
-        // Load template
-        ob_start();
-        
-        $template_path = QLSV_PLUGIN_DIR . 'templates/diemdanh-dashboard.php';
-        
-        if (file_exists($template_path)) {
-            include $template_path;
-        } else {
-            echo 'Template dashboard điểm danh không tồn tại.';
-        }
-        
-        return ob_get_clean();
-    }
-    
-    /**
-     * Thêm page template
-     */
-    public function add_page_template($templates) {
-        $templates['diemdanh-page.php'] = __('Trang Điểm Danh', 'qlsv');
-        return $templates;
-    }
-    
-    /**
-     * Load page template
-     */
-    public function load_page_template($template) {
-        global $post;
-        
-        if (!$post) {
-            return $template;
-        }
-        
-        // Lấy template được chọn
-        $template_name = get_post_meta($post->ID, '_wp_page_template', true);
-        
-        // Kiểm tra xem có phải template điểm danh không
-        if ('diemdanh-page.php' === $template_name) {
-            $template_path = QLSV_PLUGIN_DIR . 'pages/diemdanh-page.php';
-            
-            if (file_exists($template_path)) {
-                return $template_path;
-            }
-        }
-        
-        // Xử lý trường hợp URL trùng với archive của post type
-        if (is_post_type_archive('diemdanh')) {
-            $archive_template = QLSV_PLUGIN_DIR . 'pages/diemdanh-page.php';
-            if (file_exists($archive_template)) {
-                return $archive_template;
-            }
-        }
-        
-        // Nếu đang ở trang có slug là "diemdanh"
-        if ($post && $post->post_name === 'diemdanh') {
-            $diemdanh_template = QLSV_PLUGIN_DIR . 'pages/diemdanh-page.php';
-            if (file_exists($diemdanh_template)) {
-                return $diemdanh_template;
-            }
-        }
-        
-        return $template;
+        return $students;
     }
 } 

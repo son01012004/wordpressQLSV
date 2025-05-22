@@ -256,10 +256,10 @@ class QLSV_Activator {
         }
         
         // Trang Điểm danh
-        if (!get_page_by_path('diemdanh')) {
+        if (!get_page_by_path('diemdanhh')) {
             $diemdanh_page_id = wp_insert_post(array(
                 'post_title'     => 'Điểm danh',
-                'post_name'      => 'diemdanh',
+                'post_name'      => 'diemdanhh',
                 'post_content'   => '[qlsv_diemdanh_dashboard]',
                 'post_status'    => 'publish',
                 'post_type'      => 'page',
@@ -267,7 +267,7 @@ class QLSV_Activator {
             ));
             
             if ($diemdanh_page_id && !is_wp_error($diemdanh_page_id)) {
-                update_post_meta($diemdanh_page_id, '_wp_page_template', 'diemdanh-template.php');
+                update_post_meta($diemdanh_page_id, '_wp_page_template', 'diemdanh-page.php');
             }
         }
         
