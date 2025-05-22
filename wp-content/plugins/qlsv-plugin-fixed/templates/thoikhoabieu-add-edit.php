@@ -230,21 +230,32 @@ $weekdays = array(
     .tkb-form-container {
         max-width: 800px;
         margin: 0 auto 30px;
-        padding: 20px;
+        padding: 30px;
         background-color: #fff;
-        border-radius: 5px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     }
     
     .tkb-form-title {
         margin-top: 0;
-        margin-bottom: 20px;
-        font-size: 24px;
-        font-weight: 600;
+        margin-bottom: 25px;
+        font-size: 28px;
+        font-weight: 700;
         color: #23282d;
         border-bottom: 2px solid #eee;
         padding-bottom: 15px;
+        position: relative;
+    }
+    
+    .tkb-form-title:after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 60px;
+        height: 2px;
+        background-color: #00a0d2;
     }
     
     .tkb-success {
@@ -252,144 +263,192 @@ $weekdays = array(
         color: #155724;
         padding: 15px;
         margin-bottom: 20px;
-        border: 1px solid #c3e6cb;
+        border-left: 4px solid #28a745;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .tkb-success:before {
+        content: '✓';
+        margin-right: 10px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    
+    .qlsv-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #dc3545;
         border-radius: 4px;
     }
     
     .tkb-edit-form {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 25px;
     }
     
     .tkb-form-group {
-        margin-bottom: 5px;
+        margin-bottom: 0;
         flex: 1;
     }
     
     .tkb-form-row {
         display: flex;
-        gap: 15px;
-        margin-bottom: 5px;
+        gap: 20px;
+        margin-bottom: 0;
     }
     
     .tkb-form-group label {
         display: block;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         font-weight: 600;
         color: #333;
+        font-size: 15px;
     }
     
     .tkb-form-group .required {
         color: #d63638;
+        font-size: 16px;
+        margin-left: 3px;
     }
     
+    .tkb-input,
     .tkb-form-group input[type="text"],
     .tkb-form-group input[type="time"],
     .tkb-form-group select {
         width: 100%;
-        padding: 10px 12px;
+        padding: 12px 15px;
         border: 1px solid #ddd;
-        border-radius: 4px;
+        border-radius: 6px;
         font-size: 15px;
-        transition: border-color 0.3s;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.07);
+        background-color: #fff;
     }
     
     .tkb-form-group input[type="text"]:focus,
     .tkb-form-group input[type="time"]:focus,
     .tkb-form-group select:focus {
-        border-color: #0073aa;
+        border-color: #00a0d2;
         outline: none;
-        box-shadow: 0 0 0 1px #0073aa;
+        box-shadow: 0 0 0 1px #00a0d2;
+    }
+    
+    .tkb-form-group input[type="text"]::placeholder,
+    .tkb-form-group input[type="time"]::placeholder {
+        color: #aaa;
     }
     
     .tkb-form-actions {
         display: flex;
         gap: 15px;
-        margin-top: 30px;
+        margin-top: 35px;
+        justify-content: flex-end;
     }
     
     .tkb-submit-btn {
-        background-color: #0073aa;
+        background-color: #00a0d2;
         color: #fff;
         border: none;
-        padding: 12px 25px;
-        border-radius: 4px;
+        padding: 14px 30px;
+        border-radius: 6px;
         cursor: pointer;
         font-weight: 600;
         font-size: 16px;
         display: flex;
         align-items: center;
-        transition: background-color 0.3s;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 160, 210, 0.2);
     }
     
     .tkb-submit-btn:hover {
-        background-color: #005177;
+        background-color: #008db8;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0, 160, 210, 0.25);
+    }
+    
+    .tkb-submit-btn:active {
+        transform: translateY(0);
     }
     
     .tkb-submit-btn .dashicons {
-        margin-right: 8px;
+        margin-right: 10px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
     }
     
     .tkb-cancel-btn {
         background-color: #f7f7f7;
         color: #555;
-        border: 1px solid #ccc;
-        padding: 12px 25px;
-        border-radius: 4px;
+        border: 1px solid #ddd;
+        padding: 14px 25px;
+        border-radius: 6px;
         text-decoration: none;
         text-align: center;
         font-weight: 600;
         font-size: 16px;
         display: flex;
         align-items: center;
-        transition: background-color 0.3s;
+        transition: all 0.3s ease;
     }
     
     .tkb-cancel-btn:hover {
         background-color: #e9e9e9;
-        color: #555;
+        color: #333;
+        border-color: #ccc;
     }
     
     .tkb-cancel-btn .dashicons {
-        margin-right: 8px;
+        margin-right: 10px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
     }
     
     /* Navigation */
     .tkb-navigation {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
     
     .tkb-back-btn {
         display: inline-flex;
         align-items: center;
         text-decoration: none;
-        color: #0073aa;
+        color: #00a0d2;
         font-weight: 600;
+        padding: 10px 0;
+        transition: all 0.2s ease;
     }
     
     .tkb-back-btn:hover {
-        color: #005177;
-        text-decoration: underline;
+        color: #0073aa;
+        transform: translateX(-3px);
     }
     
     .tkb-back-btn .dashicons {
-        margin-right: 5px;
+        margin-right: 8px;
     }
     
     /* Instructions */
     .tkb-instructions {
         background-color: #f0f8ff;
-        border-left: 4px solid #0073aa;
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 0 4px 4px 0;
+        border-left: 4px solid #00a0d2;
+        padding: 18px 20px;
+        margin-bottom: 30px;
+        border-radius: 0 6px 6px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
     }
     
     .tkb-instructions p {
-        margin-top: 0;
-        margin-bottom: 0;
-        font-weight: 600;
+        margin: 0;
+        font-weight: 500;
+        color: #444;
+        font-size: 15px;
     }
     
     /* Debug info */
@@ -408,13 +467,23 @@ $weekdays = array(
     }
     
     @media (max-width: 768px) {
+        .tkb-form-container {
+            padding: 20px;
+        }
+        
         .tkb-form-row {
             flex-direction: column;
-            gap: 15px;
+            gap: 25px;
         }
         
         .tkb-form-actions {
             flex-direction: column;
+        }
+        
+        .tkb-submit-btn, 
+        .tkb-cancel-btn {
+            width: 100%;
+            justify-content: center;
         }
     }
 </style> 

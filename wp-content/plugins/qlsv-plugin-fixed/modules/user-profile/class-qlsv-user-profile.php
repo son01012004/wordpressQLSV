@@ -61,7 +61,7 @@ class QLSV_User_Profile {
         if (!is_user_logged_in()) {
             return '<div class="qlsv-thong-bao">
                 <p>' . __('Bạn cần đăng nhập để xem thông tin cá nhân.', 'qlsv') . '</p>
-                <p><a href="' . esc_url(wp_login_url(get_permalink())) . '" class="button">' . __('Đăng nhập', 'qlsv') . '</a></p>
+                <p><a href="' . esc_url(wp_login_url('http://localhost/wordpressQLSV/')) . '" class="button">' . __('Đăng nhập', 'qlsv') . '</a></p>
             </div>';
         }
         
@@ -346,7 +346,7 @@ class QLSV_User_Profile {
         
         // Phần header với ảnh và tên
         $output .= '<div class="sinh-vien-header">';
-        $output .= $anh_html;
+            $output .= $anh_html;
         $output .= '<h3 class="sinh-vien-ten">' . esc_html($ho_ten) . '</h3>';
         if ($trang_thai) {
             $output .= '<div class="sinh-vien-trang-thai">' . esc_html($trang_thai) . '</div>';
@@ -1212,7 +1212,7 @@ class QLSV_User_Profile {
         if (!isset($_FILES['qlsv_avatar']) || $_FILES['qlsv_avatar']['error'] == UPLOAD_ERR_NO_FILE) {
             return;
         }
-
+        
         // Kiểm tra lỗi upload
         if ($_FILES['qlsv_avatar']['error'] !== UPLOAD_ERR_OK) {
             add_action('admin_notices', function() {
@@ -1349,10 +1349,10 @@ class QLSV_User_Profile {
                 <div class="avatar-actions">
                     <div class="avatar-buttons">
                         <button type="button" class="button" id="qlsv_choose_from_library"><?php esc_html_e('Chọn từ thư viện', 'qlsv'); ?></button>
-                        <div class="file-input-wrapper">
-                            <input type="file" name="qlsv_avatar" id="qlsv_avatar" accept="image/*" />
+                    <div class="file-input-wrapper">
+                        <input type="file" name="qlsv_avatar" id="qlsv_avatar" accept="image/*" />
                             <label for="qlsv_avatar" class="button"><?php esc_html_e('Tải lên ảnh mới', 'qlsv'); ?></label>
-                        </div>
+                    </div>
                     </div>
                     <button type="submit" class="button button-primary" id="qlsv_avatar_submit" disabled><?php esc_html_e('Cập nhật', 'qlsv'); ?></button>
                 </div>
@@ -1367,27 +1367,27 @@ class QLSV_User_Profile {
                 margin-bottom: 10px;
                 justify-content: center;
             }
-            .file-input-wrapper {
-                position: relative;
-                overflow: hidden;
-                display: inline-block;
-            }
+                .file-input-wrapper {
+                    position: relative;
+                    overflow: hidden;
+                    display: inline-block;
+                }
             .file-input-wrapper input[type=file] {
-                position: absolute;
-                left: 0;
-                top: 0;
-                opacity: 0;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    opacity: 0;
                 width: 100%;
                 height: 100%;
-                cursor: pointer;
-            }
+                    cursor: pointer;
+                }
             .avatar-preview {
                 background-color: transparent !important;
             }
             .avatar-preview svg {
-                width: 100%;
-                height: 100%;
-            }
+                    width: 100%;
+                    height: 100%;
+                }
             </style>
         </div>
         <?php
@@ -1436,10 +1436,10 @@ class QLSV_User_Profile {
                 <div class="avatar-actions">
                     <div class="avatar-buttons">
                         <button type="button" class="button" id="qlsv_choose_from_library"><?php esc_html_e('Chọn từ thư viện', 'qlsv'); ?></button>
-                        <div class="file-input-wrapper">
-                            <input type="file" name="qlsv_avatar" id="qlsv_avatar_teacher" accept="image/*" />
+                    <div class="file-input-wrapper">
+                        <input type="file" name="qlsv_avatar" id="qlsv_avatar_teacher" accept="image/*" />
                             <label for="qlsv_avatar_teacher" class="button"><?php esc_html_e('Tải lên ảnh mới', 'qlsv'); ?></label>
-                        </div>
+                    </div>
                     </div>
                     <button type="submit" class="button button-primary" id="qlsv_avatar_submit" disabled><?php esc_html_e('Cập nhật', 'qlsv'); ?></button>
                 </div>
@@ -1611,10 +1611,10 @@ class QLSV_User_Profile {
                 <div class="avatar-actions">
                     <div class="avatar-buttons">
                         <button type="button" class="button" id="qlsv_choose_from_library"><?php esc_html_e('Chọn từ thư viện', 'qlsv'); ?></button>
-                        <div class="file-input-wrapper">
-                            <input type="file" name="qlsv_avatar" id="qlsv_avatar_default" accept="image/*" />
+                    <div class="file-input-wrapper">
+                        <input type="file" name="qlsv_avatar" id="qlsv_avatar_default" accept="image/*" />
                             <label for="qlsv_avatar_default" class="button"><?php esc_html_e('Tải lên ảnh mới', 'qlsv'); ?></label>
-                        </div>
+                    </div>
                     </div>
                     <button type="submit" class="button button-primary" id="qlsv_avatar_submit" disabled><?php esc_html_e('Cập nhật', 'qlsv'); ?></button>
                 </div>

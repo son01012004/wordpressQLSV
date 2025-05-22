@@ -241,11 +241,11 @@ class QLSV_DiemDanh {
         // Tiêu đề trang
         echo '<h1 class="entry-title diemdanh-title">Điểm Danh</h1>';
         
-        // Nếu không có người dùng đăng nhập, yêu cầu đăng nhập
+        // Kiểm tra người dùng đã đăng nhập chưa
         if (!is_user_logged_in()) {
-            echo '<div style="padding: 20px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; margin-bottom: 20px; border-radius: 4px;">';
-            echo '<p>Bạn cần đăng nhập để sử dụng chức năng này.</p>';
-            echo '<p><a href="' . wp_login_url(get_permalink()) . '" class="button">Đăng nhập</a></p>';
+            echo '<div class="qlsv-thong-bao">';
+            echo '<p>' . __('Bạn cần đăng nhập để sử dụng tính năng này.', 'qlsv') . '</p>';
+            echo '<p><a href="' . wp_login_url('http://localhost/wordpressQLSV/') . '" class="button">Đăng nhập</a></p>';
             echo '</div>';
             return ob_get_clean();
         }
@@ -384,7 +384,7 @@ class QLSV_DiemDanh {
         if (!is_user_logged_in()) {
             echo '<div class="diemdanh-error">';
             echo '<p>Bạn cần đăng nhập để sử dụng chức năng này.</p>';
-            echo '<p><a href="' . wp_login_url(get_permalink()) . '" class="button">Đăng nhập</a></p>';
+            echo '<p><a href="' . wp_login_url('http://localhost/wordpressQLSV/') . '" class="button">Đăng nhập</a></p>';
             echo '</div>';
             echo '</div>';
             return ob_get_clean();

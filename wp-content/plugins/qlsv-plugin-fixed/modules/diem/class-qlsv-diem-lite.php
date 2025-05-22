@@ -840,7 +840,7 @@ class QLSV_Diem_Lite {
     public function tim_kiem_diem_lite_shortcode($atts) {
         // Kiểm tra quyền truy cập
         if (!is_user_logged_in()) {
-            return '<div class="qlsv-thong-bao qlsv-error"><p>Bạn cần đăng nhập để tìm kiếm bảng điểm.</p><p><a href="' . esc_url(wp_login_url(get_permalink())) . '" class="button button-primary">Đăng nhập</a></p></div>';
+            return '<div class="qlsv-thong-bao qlsv-error"><p>Bạn cần đăng nhập để tìm kiếm bảng điểm.</p><p><a href="' . esc_url(wp_login_url('http://localhost/wordpressQLSV/')) . '" class="button button-primary">Đăng nhập</a></p></div>';
         }
         
         // Lấy thông tin người dùng hiện tại

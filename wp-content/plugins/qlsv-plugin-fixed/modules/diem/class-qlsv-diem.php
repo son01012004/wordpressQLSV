@@ -388,7 +388,7 @@ class QLSV_Diem {
         if (!is_user_logged_in()) {
             return '<div class="qlsv-thong-bao">
                 <p>' . __('Bạn cần đăng nhập để xem bảng điểm.', 'qlsv') . '</p>
-                <p><a href="' . esc_url(wp_login_url(get_permalink())) . '" class="button">' . __('Đăng nhập', 'qlsv') . '</a></p>
+                <p><a href="' . esc_url(wp_login_url('http://localhost/wordpressQLSV/')) . '" class="button">' . __('Đăng nhập', 'qlsv') . '</a></p>
             </div>';
         }
         
@@ -516,7 +516,7 @@ class QLSV_Diem {
         if (!is_user_logged_in()) {
             return '<div class="qlsv-thong-bao">
                 <p>' . __('Bạn cần đăng nhập để tìm kiếm bảng điểm.', 'qlsv') . '</p>
-                <p><a href="' . esc_url(wp_login_url(get_permalink())) . '" class="button">' . __('Đăng nhập', 'qlsv') . '</a></p>
+                <p><a href="' . esc_url(wp_login_url('http://localhost/wordpressQLSV/')) . '" class="button">' . __('Đăng nhập', 'qlsv') . '</a></p>
             </div>';
         }
         

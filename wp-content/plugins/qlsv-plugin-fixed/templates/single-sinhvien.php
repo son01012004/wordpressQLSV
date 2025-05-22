@@ -5,28 +5,40 @@
  * @package QLSV
  */
 
+// Ngăn chặn truy cập trực tiếp
+if (!defined('WPINC')) {
+    die;
+}
+
 get_header();
+
+// Kiểm tra quyền truy cập
+if (!is_user_logged_in()) {
+    ?>
+    <div class="qlsv-container">
+        <div class="qlsv-thong-bao">
+            <p><?php esc_html_e('Bạn cần đăng nhập để xem thông tin sinh viên.', 'qlsv'); ?></p>
+            <p><a href="<?php echo esc_url(wp_login_url('http://localhost/wordpressQLSV/')); ?>" class="button button-primary"><?php esc_html_e('Đăng nhập', 'qlsv'); ?></a></p>
+        </div>
+    </div>
+    <?php
+    get_footer();
+    return;
+}
 ?>
 
 <div id="primary" class="content-area">
     <main id="main" class="site-main">
+        <header class="page-header">
+            <h1 class="page-title"><?php esc_html_e('Thông tin sinh viên', 'qlsv'); ?></h1>
+        </header>
+        
+        <div class="page-content">
         <?php
-        if (is_user_logged_in()) {
             // Hiển thị thông tin người dùng theo vai trò
             echo do_shortcode('[qlsv_user_profile]');
-        } else {
-            // Hiển thị form đăng nhập nếu chưa đăng nhập
             ?>
-            <header class="page-header">
-                <h1 class="page-title"><?php esc_html_e('Thông tin sinh viên', 'qlsv'); ?></h1>
-            </header>
-            <div class="qlsv-login-message">
-                <p><?php esc_html_e('Vui lòng đăng nhập để xem thông tin sinh viên.', 'qlsv'); ?></p>
-                <p><a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>" class="button button-primary"><?php esc_html_e('Đăng nhập', 'qlsv'); ?></a></p>
             </div>
-            <?php
-        }
-        ?>
     </main>
 </div>
 
@@ -81,6 +93,19 @@ get_header();
     .thong-tin-sinh-vien-container {
         margin: 20px auto !important;
         max-width: 800px !important;
+    }
+    
+    .qlsv-thong-bao {
+        padding: 20px !important;
+        background: #f8f8f8 !important;
+        border-left: 4px solid #ccc !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .qlsv-container {
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+        padding: 20px !important;
     }
 </style>
 

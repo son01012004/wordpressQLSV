@@ -25,8 +25,11 @@ $page_title = 'Kết Quả Học Tập - Phiên bản nhẹ';
 
 // Kiểm tra đăng nhập
 if (!is_user_logged_in()) {
-    wp_redirect(wp_login_url(site_url('/diem-lite/')));
-    exit;
+    // Nếu không phải admin thì chuyển hướng đến trang đăng nhập
+    if (!current_user_can('manage_options')) {
+        wp_redirect(wp_login_url('http://localhost/wordpressQLSV/'));
+        exit;
+    }
 }
 
 // Header

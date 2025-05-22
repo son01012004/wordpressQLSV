@@ -53,7 +53,13 @@ if ($giang_vien_id) {
     <h2 class="tkb-detail-title"><?php esc_html_e('Thông tin lịch học', 'qlsv'); ?></h2>
     
     <div class="tkb-navigation">
-        <a href="<?php echo esc_url(get_permalink(get_option('qlsv_tkb_list_page', ''))); ?>" class="tkb-back-btn">
+        <a href="<?php 
+            // Ưu tiên redirect_url nếu có
+            $back_url = (isset($_GET['redirect_url']) && !empty($_GET['redirect_url'])) 
+                ? urldecode($_GET['redirect_url']) 
+                : get_permalink(get_option('qlsv_tkb_list_page', ''));
+            echo esc_url($back_url); 
+        ?>" class="tkb-back-btn">
             <span class="dashicons dashicons-arrow-left-alt"></span> <?php esc_html_e('Quay lại danh sách', 'qlsv'); ?>
         </a>
         
@@ -102,7 +108,13 @@ if ($giang_vien_id) {
     </div>
     
     <div class="tkb-detail-actions">
-        <a href="<?php echo esc_url(get_permalink(get_option('qlsv_tkb_list_page', ''))); ?>" class="tkb-btn tkb-primary-btn">
+        <a href="<?php 
+            // Ưu tiên redirect_url nếu có
+            $list_url = (isset($_GET['redirect_url']) && !empty($_GET['redirect_url'])) 
+                ? urldecode($_GET['redirect_url']) 
+                : get_permalink(get_option('qlsv_tkb_list_page', ''));
+            echo esc_url($list_url); 
+        ?>" class="tkb-btn tkb-primary-btn">
             <span class="dashicons dashicons-list-view"></span> <?php esc_html_e('Xem tất cả lịch học', 'qlsv'); ?>
         </a>
     </div>

@@ -12,6 +12,20 @@ if (!defined('WPINC')) {
 
 get_header();
 
+// Kiểm tra quyền truy cập
+if (!is_user_logged_in()) {
+    ?>
+    <div class="qlsv-container">
+        <div class="qlsv-thong-bao">
+            <p><?php esc_html_e('Bạn cần đăng nhập để xem chi tiết thời khóa biểu.', 'qlsv'); ?></p>
+            <p><a href="<?php echo esc_url(wp_login_url('http://localhost/wordpressQLSV/')); ?>" class="button"><?php esc_html_e('Đăng nhập', 'qlsv'); ?></a></p>
+        </div>
+    </div>
+    <?php
+    get_footer();
+    return;
+}
+
 // Lấy thông tin thời khóa biểu
 $post_id = get_the_ID();
 $mon_hoc_id = get_field('mon_hoc', $post_id);

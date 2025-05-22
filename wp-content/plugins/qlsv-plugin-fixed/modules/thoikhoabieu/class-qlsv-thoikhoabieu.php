@@ -54,6 +54,10 @@ class QLSV_ThoiKhoaBieu {
         // Thêm trang cài đặt
         $this->loader->add_action('admin_menu', $this, 'add_settings_page');
         $this->loader->add_action('admin_init', $this, 'register_settings');
+        
+        // Đăng ký AJAX handler
+        $this->loader->add_action('wp_ajax_get_tkb_data', $this, 'ajax_get_tkb_data');
+        $this->loader->add_action('wp_ajax_delete_tkb', $this, 'ajax_delete_tkb');
     }
     
     /**
@@ -768,12 +772,16 @@ class QLSV_ThoiKhoaBieu {
             $tkb_id = intval($_GET['tkb_id']);
         }
         
+        // Kiểm tra nếu là chế độ xem từ trang thời khóa biểu
+        $is_tkb_view = isset($_GET['thoi-khoa-bieu-moi']) && $_GET['thoi-khoa-bieu-moi'] == 'true';
+        
         // Bắt đầu output buffer
         ob_start();
         
         // Chuẩn bị các biến cho template
         $template_vars = array(
-            'tkb_id' => $tkb_id
+            'tkb_id' => $tkb_id,
+            'is_tkb_view' => $is_tkb_view
         );
         
         // Tìm template
@@ -807,8 +815,16 @@ class QLSV_ThoiKhoaBieu {
                 error_log("POST DATA: " . print_r($_POST, true));
             }
             
-            // Kiểm tra nonce
-            if (!wp_verify_nonce($_POST['tkb_nonce'], 'tkb_save_action')) {
+            // Kiểm tra nonce dựa vào action
+            $nonce_action = 'tkb_save_action';
+            if ($action === 'delete') {
+                $nonce_action = 'tkb_delete_action';
+                $nonce_field = 'tkb_delete_nonce';
+            } else {
+                $nonce_field = 'tkb_nonce';
+            }
+            
+            if (!wp_verify_nonce($_POST[$nonce_field], $nonce_action)) {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
                     error_log("TKB FORM ERROR: Invalid nonce");
                 }
@@ -832,6 +848,38 @@ class QLSV_ThoiKhoaBieu {
                 $redirect_url = home_url();
             }
             
+            // XỬ LÝ XÓA LỊCH HỌC
+            if ($action === 'delete' && $tkb_id > 0) {
+                $post = get_post($tkb_id);
+                
+                // Kiểm tra post type
+                if (!$post || $post->post_type !== 'thoikhoabieu') {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log("TKB DELETE ERROR: Invalid post ID or type: " . $tkb_id);
+                    }
+                    wp_redirect(add_query_arg('message', 'error', $redirect_url));
+                    exit;
+                }
+                
+                // Xóa lịch học
+                $result = wp_delete_post($tkb_id, true);
+                
+                if ($result) {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log("TKB DELETED: ID=" . $tkb_id);
+                    }
+                    wp_redirect(add_query_arg('message', 'deleted', $redirect_url));
+                    exit;
+                } else {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log("TKB DELETE ERROR: Failed to delete ID=" . $tkb_id);
+                    }
+                    wp_redirect(add_query_arg('message', 'error', $redirect_url));
+                    exit;
+                }
+            }
+            
+            // XỬ LÝ TẠO MỚI/CẬP NHẬT LỊCH HỌC
             // Dữ liệu cho thời khóa biểu
             $mon_hoc = isset($_POST['mon_hoc']) ? intval($_POST['mon_hoc']) : 0;
             $lop = isset($_POST['lop']) ? intval($_POST['lop']) : 0;
@@ -874,6 +922,23 @@ class QLSV_ThoiKhoaBieu {
                     wp_redirect(add_query_arg('message', 'error', $redirect_url));
                     exit;
                 }
+            } else if ($action === 'update' && $tkb_id > 0) {
+                // Kiểm tra post
+                $post = get_post($tkb_id);
+                
+                if (!$post || $post->post_type !== 'thoikhoabieu') {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log("TKB UPDATE ERROR: Invalid post ID or type: " . $tkb_id);
+                    }
+                    wp_redirect(add_query_arg('message', 'error', $redirect_url));
+                    exit;
+                }
+            } else {
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("TKB FORM ERROR: Invalid action or ID: action=$action, ID=$tkb_id");
+                }
+                wp_redirect(add_query_arg('message', 'error', $redirect_url));
+                exit;
             }
             
             if ($tkb_id && $tkb_id > 0) {
@@ -913,8 +978,9 @@ class QLSV_ThoiKhoaBieu {
                     error_log("Redirecting to success: $redirect_url");
                 }
                 
-                // Chuyển hướng về trang chỉ định với thông báo thành công
-                wp_redirect(add_query_arg('message', 'success', $redirect_url));
+                // Chuyển hướng về trang chỉ định với thông báo thành công tương ứng với action
+                $message_type = $action === 'create' ? 'created' : 'updated';
+                wp_redirect(add_query_arg('message', $message_type, $redirect_url));
                 exit;
             } else {
                 // Lỗi khi lưu
@@ -1132,5 +1198,98 @@ class QLSV_ThoiKhoaBieu {
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log("TKB Action: " . $action . ", ID: " . $tkb_id . ", Page ID: " . $current_page_id);
         }
+    }
+
+    /**
+     * AJAX handler để lấy dữ liệu thời khóa biểu
+     */
+    public function ajax_get_tkb_data() {
+        // Kiểm tra nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tkb_save_action')) {
+            wp_send_json_error('Lỗi bảo mật', 403);
+            wp_die();
+        }
+        
+        // Kiểm tra ID
+        $tkb_id = isset($_POST['tkb_id']) ? intval($_POST['tkb_id']) : 0;
+        if (!$tkb_id) {
+            wp_send_json_error('ID không hợp lệ', 400);
+            wp_die();
+        }
+        
+        // Kiểm tra post type
+        $post = get_post($tkb_id);
+        if (!$post || $post->post_type !== 'thoikhoabieu') {
+            wp_send_json_error('Không tìm thấy lịch học', 404);
+            wp_die();
+        }
+        
+        // Lấy dữ liệu ACF
+        $mon_hoc = get_field('mon_hoc', $tkb_id);
+        $lop = get_field('lop', $tkb_id);
+        $giang_vien = get_field('giang_vien', $tkb_id);
+        $thu = get_field('thu', $tkb_id);
+        $gio_bat_dau = get_field('gio_bat_dau', $tkb_id);
+        $gio_ket_thuc = get_field('gio_ket_thuc', $tkb_id);
+        $phong = get_field('phong', $tkb_id);
+        $tuan_hoc = get_field('tuan_hoc', $tkb_id);
+        
+        // Trả về dữ liệu
+        $data = array(
+            'tkb_id' => $tkb_id,
+            'mon_hoc' => $mon_hoc,
+            'lop' => $lop,
+            'giang_vien' => $giang_vien,
+            'thu' => $thu,
+            'gio_bat_dau' => $gio_bat_dau,
+            'gio_ket_thuc' => $gio_ket_thuc,
+            'phong' => $phong,
+            'tuan_hoc' => $tuan_hoc
+        );
+        
+        wp_send_json_success($data);
+        wp_die();
+    }
+
+    /**
+     * AJAX handler để xóa thời khóa biểu
+     */
+    public function ajax_delete_tkb() {
+        // Kiểm tra nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tkb_delete_action')) {
+            wp_send_json_error('Lỗi bảo mật', 403);
+            wp_die();
+        }
+        
+        // Kiểm tra quyền
+        if (!current_user_can('administrator')) {
+            wp_send_json_error('Bạn không có quyền xóa lịch học', 403);
+            wp_die();
+        }
+        
+        // Kiểm tra ID
+        $tkb_id = isset($_POST['tkb_id']) ? intval($_POST['tkb_id']) : 0;
+        if (!$tkb_id) {
+            wp_send_json_error('ID không hợp lệ', 400);
+            wp_die();
+        }
+        
+        // Kiểm tra post type
+        $post = get_post($tkb_id);
+        if (!$post || $post->post_type !== 'thoikhoabieu') {
+            wp_send_json_error('Không tìm thấy lịch học', 404);
+            wp_die();
+        }
+        
+        // Xóa thời khóa biểu
+        $result = wp_delete_post($tkb_id, true);
+        
+        if ($result) {
+            wp_send_json_success('Đã xóa lịch học thành công');
+        } else {
+            wp_send_json_error('Lỗi khi xóa lịch học', 500);
+        }
+        
+        wp_die();
     }
 } 

@@ -12,8 +12,8 @@ if (!is_user_logged_in()) {
     ?>
     <div class="qlsv-container">
         <div class="qlsv-thong-bao">
-            <p><?php esc_html_e('Bạn cần đăng nhập để xem điểm danh.', 'qlsv'); ?></p>
-            <p><a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>" class="button"><?php esc_html_e('Đăng nhập', 'qlsv'); ?></a></p>
+            <p><?php esc_html_e('Bạn cần đăng nhập để sử dụng tính năng điểm danh.', 'qlsv'); ?></p>
+            <p><a href="<?php echo esc_url(wp_login_url('http://localhost/wordpressQLSV/')); ?>" class="button"><?php esc_html_e('Đăng nhập', 'qlsv'); ?></a></p>
         </div>
     </div>
     <?php

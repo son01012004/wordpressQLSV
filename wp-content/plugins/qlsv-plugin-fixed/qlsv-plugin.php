@@ -557,8 +557,21 @@ function qlsv_enqueue_scripts() {
     
     // Đăng ký JS
     wp_enqueue_script('qlsv-script', plugin_dir_url(__FILE__) . 'assets/js/qlsv-script.js', array('jquery'), QLSV_VERSION, true);
+
+    // CSS
+    wp_enqueue_style('qlsv-admin-style', plugins_url('assets/css/qlsv-admin.css', __FILE__), array(), '1.0.0');
+    
+    // JavaScript
+    wp_enqueue_script('qlsv-admin-script', plugins_url('assets/js/qlsv-admin.js', __FILE__), array('jquery'), '1.0.0', true);
+    
+    // Localize script với các tham số AJAX
+    wp_localize_script('qlsv-admin-script', 'qlsv_ajax_params', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('qlsv_ajax_nonce')
+    ));
 }
 add_action('wp_enqueue_scripts', 'qlsv_enqueue_scripts');
+add_action('admin_enqueue_scripts', 'qlsv_enqueue_scripts');
 
 // Đăng ký route cho avatar placeholder
 function qlsv_register_avatar_placeholder() {
@@ -587,4 +600,17 @@ function qlsv_template_include($template) {
     }
     return $template;
 }
-add_filter('template_include', 'qlsv_template_include'); 
+add_filter('template_include', 'qlsv_template_include');
+
+// Hàm chuyển hướng người dùng về trang chủ sau khi đăng nhập
+function qlsv_login_redirect($redirect_to, $request, $user) {
+    // Nếu không có lỗi trong quá trình đăng nhập và người dùng tồn tại
+    if (!is_wp_error($user) && $user) {
+        // Chuyển hướng tất cả người dùng về trang chủ, kể cả admin
+        return home_url();
+    }
+    
+    // Trường hợp khác, giữ nguyên chuyển hướng mặc định
+    return $redirect_to;
+}
+add_filter('login_redirect', 'qlsv_login_redirect', 10, 3); 
