@@ -19,11 +19,11 @@ class QLSV_DiemDanh {
         
         // Only register hooks if loader is provided
         if ($this->loader !== null) {
-            // Đăng ký các hooks
-            $this->register_hooks();
-            
-            // Đăng ký các shortcodes
-            $this->register_shortcodes();
+        // Đăng ký các hooks
+        $this->register_hooks();
+        
+        // Đăng ký các shortcodes
+        $this->register_shortcodes();
         }
     }
     
@@ -688,14 +688,14 @@ class QLSV_DiemDanh {
                     'meta_query' => array(
                         'relation' => 'AND',
                         array(
-                            'key' => 'lop',
+                    'key' => 'lop',
                             'value' => $form_lop_id,
-                            'compare' => '='
+                    'compare' => '='
                         ),
                         array(
-                            'key' => 'mon_hoc',
+                    'key' => 'mon_hoc',
                             'value' => $form_mon_hoc_id,
-                            'compare' => '='
+                    'compare' => '='
                         ),
                         array(
                             'key' => 'ngay',
@@ -873,7 +873,7 @@ class QLSV_DiemDanh {
                 
                 echo '</tbody>';
                 echo '</table>';
-            } else {
+        } else {
                 echo '<div class="diemdanh-error">';
                 echo '<p>Không tìm thấy sinh viên nào trong lớp này.</p>';
                 echo '</div>';
@@ -897,7 +897,7 @@ class QLSV_DiemDanh {
         ob_start();
         
         // Xác định vai trò người dùng
-        $current_user = wp_get_current_user();
+            $current_user = wp_get_current_user();
         $is_admin = current_user_can('manage_options');
         $is_teacher = current_user_can('edit_posts') || $is_admin;
         $is_student = !$is_teacher;
@@ -916,17 +916,17 @@ class QLSV_DiemDanh {
             } else {
                 // Nếu không có sinhvien_id, tìm sinh viên từ user hiện tại
                 $sv_args = array(
-                    'post_type' => 'sinhvien',
-                    'posts_per_page' => 1,
-                    'meta_query' => array(
-                        array(
-                            'key' => 'email',
+                'post_type' => 'sinhvien',
+                'posts_per_page' => 1,
+                'meta_query' => array(
+                    array(
+                        'key' => 'email',
                             'value' => $current_user->user_email,
-                            'compare' => '='
-                        )
+                        'compare' => '='
                     )
-                );
-                
+                )
+            );
+            
                 $sv_query = new WP_Query($sv_args);
                 
                 if ($sv_query->have_posts()) {
@@ -936,7 +936,7 @@ class QLSV_DiemDanh {
                     $student_name = get_the_title();
                     
                     // Reset post data
-                    wp_reset_postdata();
+            wp_reset_postdata();
                 } else {
                     echo '<div class="diemdanh-error">';
                     echo '<p>Không tìm thấy thông tin sinh viên trong hệ thống.</p>';
@@ -990,8 +990,8 @@ class QLSV_DiemDanh {
                 $this->display_student_attendance($sv_id, $student_lop_id, $mon_hoc_id);
             } else {
                 echo '<p>Không tìm thấy thông tin lớp của sinh viên.</p>';
-            }
-        } else {
+                }
+            } else {
             // GIÁO VIÊN và ADMIN xem tất cả điểm danh
             
             // Form filter
@@ -1007,7 +1007,7 @@ class QLSV_DiemDanh {
             // Lấy danh sách lớp
             $lop_query = new WP_Query(array(
                 'post_type' => 'lop',
-                'posts_per_page' => -1,
+                    'posts_per_page' => -1,
                 'orderby' => 'title',
                 'order' => 'ASC'
             ));
@@ -1142,9 +1142,9 @@ class QLSV_DiemDanh {
                 
             } else {
                 echo '<p>Không tìm thấy bản ghi điểm danh nào.</p>';
-            }
-            
-            wp_reset_postdata();
+                }
+                
+                wp_reset_postdata();
         }
         
         return ob_get_clean();
@@ -1156,15 +1156,15 @@ class QLSV_DiemDanh {
     private function display_student_attendance($sv_id, $lop_id, $mon_hoc_id = 0) {
         // Args để lấy điểm danh
         $args = array(
-            'post_type' => 'diemdanh',
-            'posts_per_page' => -1,
-            'meta_query' => array(
-                array(
+                    'post_type' => 'diemdanh',
+                    'posts_per_page' => -1,
+                    'meta_query' => array(
+                        array(
                     'key' => 'lop',
                     'value' => $lop_id,
-                    'compare' => '='
-                )
-            ),
+                            'compare' => '='
+                        )
+                    ),
             'orderby' => 'date',
             'order' => 'DESC'
         );
@@ -1193,9 +1193,9 @@ class QLSV_DiemDanh {
             
             $absent_count = 0;
             $total_count = 0;
-            
-            while ($diemdanh_query->have_posts()) {
-                $diemdanh_query->the_post();
+                
+                while ($diemdanh_query->have_posts()) {
+                    $diemdanh_query->the_post();
                 $diemdanh_id = get_the_ID();
                 $mon_id = get_field('mon_hoc', $diemdanh_id);
                 $mon_name = get_the_title($mon_id);

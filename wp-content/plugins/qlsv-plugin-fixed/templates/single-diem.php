@@ -122,6 +122,10 @@ if ($tb !== '') {
 <div class="qlsv-container">
     <h1 class="qlsv-page-title"><?php esc_html_e('Chi tiết điểm', 'qlsv'); ?></h1>
     
+    <div class="notice notice-info">
+        <p><strong>Thông báo:</strong> Đang sử dụng phiên bản tối ưu hiển thị bảng điểm.</p>
+    </div>
+    
     <div class="diem-detail-card <?php echo $xeploai_class; ?>">
         <div class="diem-header">
             <h2><?php echo esc_html($sinh_vien); ?></h2>

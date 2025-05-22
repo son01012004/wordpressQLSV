@@ -23,6 +23,9 @@ define('QLSV_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('QLSV_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('QLSV_PLUGIN_FILE', __FILE__);
 
+// Tải cấu hình bộ nhớ tối ưu
+require_once(QLSV_PLUGIN_DIR . 'wp-config-memory.php');
+
 // Thêm file tương thích với các theme khác nhau
 require_once(QLSV_PLUGIN_DIR . 'theme-compatibility.php');
 
@@ -61,7 +64,8 @@ require_once QLSV_PLUGIN_DIR . 'includes/class-qlsv-deactivator.php';
 
 // Gọi các module
 require_once QLSV_PLUGIN_DIR . 'modules/sinh-vien/class-qlsv-sinh-vien.php';
-require_once QLSV_PLUGIN_DIR . 'modules/diem/class-qlsv-diem.php';
+// Sử dụng phiên bản lite của module điểm để giảm sử dụng bộ nhớ
+require_once QLSV_PLUGIN_DIR . 'modules/diem/class-qlsv-diem-lite.php';
 require_once QLSV_PLUGIN_DIR . 'modules/lop/class-qlsv-lop.php';
 require_once QLSV_PLUGIN_DIR . 'modules/monhoc/class-qlsv-monhoc.php';
 require_once QLSV_PLUGIN_DIR . 'modules/thoikhoabieu/class-qlsv-thoikhoabieu.php';
@@ -84,7 +88,7 @@ function run_qlsv_plugin() {
     
     // Khởi tạo các module
     $sinh_vien = new QLSV_Sinh_Vien($qlsv_loader);
-    $diem = new QLSV_Diem($qlsv_loader);
+    $diem = new QLSV_Diem_Lite($qlsv_loader);
     $lop = new QLSV_Lop($qlsv_loader);
     $monhoc = new QLSV_MonHoc($qlsv_loader);
     $thoikhoabieu = new QLSV_ThoiKhoaBieu($qlsv_loader);
@@ -128,6 +132,31 @@ add_action('init', 'qlsv_create_required_pages', 20);
 add_action('wp_loaded', 'qlsv_flush_rewrite_rules', 99);
 add_filter('wp_nav_menu_objects', 'qlsv_custom_nav_menu');
 
+// Thêm menu công cụ chẩn đoán bộ nhớ
+add_action('admin_menu', 'qlsv_add_memory_diagnostic_menu');
+
+/**
+ * Thêm menu công cụ chẩn đoán bộ nhớ
+ */
+function qlsv_add_memory_diagnostic_menu() {
+    add_management_page(
+        'Công cụ chẩn đoán bộ nhớ QLSV',
+        'Chẩn đoán bộ nhớ QLSV',
+        'manage_options',
+        'qlsv-memory-diagnostic',
+        'qlsv_memory_diagnostic_redirect'
+    );
+}
+
+/**
+ * Chuyển hướng đến trang chẩn đoán bộ nhớ
+ */
+function qlsv_memory_diagnostic_redirect() {
+    $url = plugins_url('memory-diagnostic.php', __FILE__);
+    echo '<script>window.location.href = "' . esc_url($url) . '";</script>';
+    echo '<p>Đang chuyển hướng đến <a href="' . esc_url($url) . '">công cụ chẩn đoán bộ nhớ</a>...</p>';
+}
+
 // Cập nhật các post type để tránh xung đột URL
 function qlsv_register_post_types_with_fixed_urls() {
     // Cập nhật post type diemdanh với slug mới
@@ -148,9 +177,11 @@ function qlsv_register_post_types_with_fixed_urls() {
         global $wp_post_types;
         if (isset($wp_post_types['diem'])) {
             $wp_post_types['diem']->rewrite = array(
-                'slug' => 'diem-record',
+                'slug' => 'diem',
                 'with_front' => false
             );
+            // Đảm bảo hiển thị trang archive
+            $wp_post_types['diem']->has_archive = true;
         }
     }
 }
@@ -200,7 +231,7 @@ function qlsv_create_required_pages() {
         $ketqua_page_id = wp_insert_post(array(
             'post_title'     => 'Kết Quả Học Tập',
             'post_name'      => 'ket-qua-hoc-tap',
-            'post_content'   => '[qlsv_tim_kiem_diem]',
+            'post_content'   => '[qlsv_tim_kiem_diem_lite]',
             'post_status'    => 'publish',
             'post_type'      => 'page',
             'comment_status' => 'closed'
@@ -211,7 +242,31 @@ function qlsv_create_required_pages() {
         // Cập nhật nội dung trang nếu cần
         wp_update_post(array(
             'ID' => $ketqua_page_id,
-            'post_content' => '[qlsv_tim_kiem_diem]'
+            'post_content' => '[qlsv_tim_kiem_diem_lite]'
+        ));
+    }
+
+    // Trang Điểm
+    $diem_page_id = 0;
+    $diem_page = get_page_by_path('ket-qua-diem');
+    
+    if (!$diem_page) {
+        // Tạo trang mới
+        $diem_page_id = wp_insert_post(array(
+            'post_title'     => 'Kết Quả Điểm',
+            'post_name'      => 'ket-qua-diem',
+            'post_content'   => '[qlsv_tim_kiem_diem_lite]',
+            'post_status'    => 'publish',
+            'post_type'      => 'page',
+            'comment_status' => 'closed'
+        ));
+    } else {
+        $diem_page_id = $diem_page->ID;
+        
+        // Cập nhật nội dung trang nếu cần
+        wp_update_post(array(
+            'ID' => $diem_page_id,
+            'post_content' => '[qlsv_tim_kiem_diem_lite]'
         ));
     }
     
@@ -224,11 +279,11 @@ function qlsv_create_required_pages() {
     }
     
     // Thêm các trang vào menu nếu chưa có
-    qlsv_add_pages_to_menu($diemdanh_page_id, $ketqua_page_id);
+    qlsv_add_pages_to_menu($diemdanh_page_id, $ketqua_page_id, $diem_page_id);
 }
 
 // Thêm trang vào menu
-function qlsv_add_pages_to_menu($diemdanh_page_id, $ketqua_page_id) {
+function qlsv_add_pages_to_menu($diemdanh_page_id, $ketqua_page_id, $diem_page_id = 0) {
     // Lấy menu chính (primary/main menu)
     $menu_locations = get_nav_menu_locations();
     $primary_menu_id = 0;
@@ -256,6 +311,7 @@ function qlsv_add_pages_to_menu($diemdanh_page_id, $ketqua_page_id) {
         $menu_items = wp_get_nav_menu_items($primary_menu_id);
         $diemdanh_exists = false;
         $ketqua_exists = false;
+        $diem_exists = false;
         
         if ($menu_items) {
             foreach ($menu_items as $item) {
@@ -264,6 +320,9 @@ function qlsv_add_pages_to_menu($diemdanh_page_id, $ketqua_page_id) {
                 }
                 if ($item->object == 'page' && $item->object_id == $ketqua_page_id) {
                     $ketqua_exists = true;
+                }
+                if ($item->object == 'page' && $item->object_id == $diem_page_id) {
+                    $diem_exists = true;
                 }
             }
         }
@@ -284,6 +343,16 @@ function qlsv_add_pages_to_menu($diemdanh_page_id, $ketqua_page_id) {
                 'menu-item-title' => 'Kết Quả Học Tập',
                 'menu-item-object' => 'page',
                 'menu-item-object-id' => $ketqua_page_id,
+                'menu-item-type' => 'post_type',
+                'menu-item-status' => 'publish'
+            ));
+        }
+        
+        if (!$diem_exists && $diem_page_id) {
+            wp_update_nav_menu_item($primary_menu_id, 0, array(
+                'menu-item-title' => 'Kết Quả Điểm',
+                'menu-item-object' => 'page',
+                'menu-item-object-id' => $diem_page_id,
                 'menu-item-type' => 'post_type',
                 'menu-item-status' => 'publish'
             ));

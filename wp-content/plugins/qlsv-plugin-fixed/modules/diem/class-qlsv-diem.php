@@ -28,6 +28,9 @@ class QLSV_Diem {
      * Đăng ký các hooks cần thiết
      */
     private function register_hooks() {
+        // Đăng ký custom post type
+        $this->loader->add_action('init', $this, 'register_post_type');
+        
         // Đăng ký ACF fields
         $this->loader->add_action('acf/init', $this, 'register_acf_fields');
         
@@ -42,6 +45,12 @@ class QLSV_Diem {
         
         // Đăng ký template tùy chỉnh cho single diem
         $this->loader->add_filter('single_template', $this, 'register_diem_single_template');
+        
+        // Fix 404 errors
+        $this->loader->add_action('pre_get_posts', $this, 'handle_diem_queries');
+        
+        // Kiểm tra quyền người dùng trước khi cho phép chỉnh sửa
+        $this->loader->add_filter('user_has_cap', $this, 'restrict_diem_editing', 10, 3);
     }
     
     /**
@@ -50,6 +59,7 @@ class QLSV_Diem {
     private function register_shortcodes() {
         add_shortcode('qlsv_bang_diem', array($this, 'bang_diem_shortcode'));
         add_shortcode('qlsv_tim_kiem_diem', array($this, 'tim_kiem_diem_shortcode'));
+        add_shortcode('qlsv_nhap_diem', array($this, 'nhap_diem_shortcode'));
     }
     
     /**
@@ -549,45 +559,56 @@ class QLSV_Diem {
         
         // Chỉ admin và giáo viên mới có thể sử dụng form tìm kiếm
         if ($is_admin || $is_teacher) {
-            // Lấy danh sách sinh viên
-            $students = get_posts([
-                'post_type' => 'sinhvien',
-                'posts_per_page' => -1,
-                'orderby' => 'title',
-                'order' => 'ASC'
-            ]);
-            
-            // Lấy danh sách môn học
-            $courses = get_posts([
-                'post_type' => 'monhoc',
-                'posts_per_page' => -1,
-                'orderby' => 'title',
-                'order' => 'ASC'
-            ]);
-            
-            // Lấy danh sách lớp
-            $classes = get_posts([
-                'post_type' => 'lop',
-                'posts_per_page' => -1,
-                'orderby' => 'title',
-                'order' => 'ASC'
-            ]);
-            
-            // Lấy các tham số tìm kiếm từ URL (nếu có)
-            $selected_student = isset($_GET['sinhvien']) ? intval($_GET['sinhvien']) : 0;
-            $selected_course = isset($_GET['monhoc']) ? intval($_GET['monhoc']) : 0;
-            $selected_class = isset($_GET['lop']) ? intval($_GET['lop']) : 0;
-            
-            // Load template cho form tìm kiếm
             ob_start();
-            $template_form_path = QLSV_PLUGIN_DIR . 'templates/tim-kiem-diem-form.php';
             
-            if (file_exists($template_form_path)) {
-                include $template_form_path;
-            } else {
-                echo 'Template form không tồn tại.';
-            }
+            // Hiển thị form nhập điểm trước cho giáo viên và admin
+            echo '<div class="tabs-container">';
+            echo '<ul class="tabs-nav">';
+            echo '<li class="tab-active"><a href="#tab-tim-kiem">Tìm kiếm điểm</a></li>';
+            echo '<li><a href="#tab-nhap-diem">Nhập điểm</a></li>';
+            echo '</ul>';
             
+            echo '<div class="tabs-content">';
+            echo '<div id="tab-tim-kiem" class="tab-content tab-active">';
+            
+        // Lấy danh sách sinh viên
+        $students = get_posts([
+            'post_type' => 'sinhvien',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ]);
+        
+        // Lấy danh sách môn học
+        $courses = get_posts([
+            'post_type' => 'monhoc',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ]);
+        
+        // Lấy danh sách lớp
+        $classes = get_posts([
+            'post_type' => 'lop',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ]);
+        
+        // Lấy các tham số tìm kiếm từ URL (nếu có)
+        $selected_student = isset($_GET['sinhvien']) ? intval($_GET['sinhvien']) : 0;
+        $selected_course = isset($_GET['monhoc']) ? intval($_GET['monhoc']) : 0;
+        $selected_class = isset($_GET['lop']) ? intval($_GET['lop']) : 0;
+        
+        // Load template cho form tìm kiếm
+        $template_form_path = QLSV_PLUGIN_DIR . 'templates/tim-kiem-diem-form.php';
+        
+        if (file_exists($template_form_path)) {
+            include $template_form_path;
+        } else {
+            echo 'Template form không tồn tại.';
+        }
+        
             // Luôn hiển thị kết quả tìm kiếm, không cần kiểm tra submit
             // Tạo shortcode với các tham số tìm kiếm
             $shortcode_atts = array();
@@ -606,6 +627,85 @@ class QLSV_Diem {
             
             // Thực hiện shortcode bảng điểm với các tham số đã chọn
             echo $this->bang_diem_shortcode($shortcode_atts);
+            
+            echo '</div>';
+            
+            echo '<div id="tab-nhap-diem" class="tab-content">';
+            echo do_shortcode('[qlsv_nhap_diem]');
+            echo '</div>';
+            
+            echo '</div>'; // End tabs-content
+            echo '</div>'; // End tabs-container
+            
+            // Thêm JavaScript để quản lý tabs
+            echo '<script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Lấy tất cả các tab nav links
+                    const tabLinks = document.querySelectorAll(".tabs-nav a");
+                    
+                    // Thêm event listener cho mỗi tab
+                    tabLinks.forEach(function(link) {
+                        link.addEventListener("click", function(e) {
+                            e.preventDefault();
+                            
+                            // Xóa active class từ tất cả tabs
+                            document.querySelectorAll(".tabs-nav li").forEach(function(li) {
+                                li.classList.remove("tab-active");
+                            });
+                            document.querySelectorAll(".tab-content").forEach(function(content) {
+                                content.classList.remove("tab-active");
+                            });
+                            
+                            // Thêm active class cho tab được click
+                            this.parentElement.classList.add("tab-active");
+                            
+                            // Hiển thị nội dung tương ứng
+                            const targetId = this.getAttribute("href");
+                            document.querySelector(targetId).classList.add("tab-active");
+                        });
+                    });
+                });
+            </script>';
+            
+            // Thêm CSS cho tabs
+            echo '<style>
+                .tabs-container {
+                    margin-bottom: 30px;
+                }
+                .tabs-nav {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    display: flex;
+                    border-bottom: 1px solid #ddd;
+                }
+                .tabs-nav li {
+                    margin-right: 5px;
+                }
+                .tabs-nav a {
+                    display: block;
+                    padding: 10px 15px;
+                    text-decoration: none;
+                    background: #f5f5f5;
+                    color: #333;
+                    border: 1px solid #ddd;
+                    border-bottom: none;
+                    border-radius: 3px 3px 0 0;
+                }
+                .tabs-nav li.tab-active a {
+                    background: #fff;
+                    position: relative;
+                    bottom: -1px;
+                    border-bottom: 1px solid #fff;
+                }
+                .tab-content {
+                    display: none;
+                    padding-top: 20px;
+                }
+                .tab-content.tab-active {
+                    display: block;
+                }
+            </style>';
             
             return ob_get_clean();
         } else {
@@ -640,5 +740,398 @@ class QLSV_Diem {
             }
         }
         return $template;
+    }
+
+    /**
+     * Đăng ký post type điểm
+     */
+    public function register_post_type() {
+        $labels = array(
+            'name'               => _x('Điểm', 'post type general name', 'qlsv'),
+            'singular_name'      => _x('Điểm', 'post type singular name', 'qlsv'),
+            'menu_name'          => _x('Điểm', 'admin menu', 'qlsv'),
+            'name_admin_bar'     => _x('Điểm', 'add new on admin bar', 'qlsv'),
+            'add_new'            => _x('Thêm mới', 'diem', 'qlsv'),
+            'add_new_item'       => __('Thêm điểm mới', 'qlsv'),
+            'new_item'           => __('Điểm mới', 'qlsv'),
+            'edit_item'          => __('Sửa điểm', 'qlsv'),
+            'view_item'          => __('Xem điểm', 'qlsv'),
+            'all_items'          => __('Tất cả điểm', 'qlsv'),
+            'search_items'       => __('Tìm điểm', 'qlsv'),
+            'not_found'          => __('Không tìm thấy điểm nào.', 'qlsv'),
+            'not_found_in_trash' => __('Không có điểm nào trong thùng rác.', 'qlsv')
+        );
+
+        $args = array(
+            'labels'             => $labels,
+            'description'        => __('Quản lý điểm sinh viên', 'qlsv'),
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => true,
+            'rewrite'            => array(
+                'slug' => 'diem',
+                'with_front' => false,
+                'pages' => true,
+                'feeds' => false,
+                'ep_mask' => EP_PERMALINK
+            ),
+            'capability_type'    => 'post',
+            'has_archive'        => true,
+            'hierarchical'       => false,
+            'menu_position'      => null,
+            'supports'           => array('title'),
+            'menu_icon'          => 'dashicons-welcome-learn-more'
+        );
+
+        register_post_type('diem', $args);
+        
+        // Đăng ký thêm các tham số query
+        $this->loader->add_filter('query_vars', $this, 'add_query_vars');
+        
+        // Đảm bảo flush rewrite rules
+        if (get_option('qlsv_diem_flush_rewrite') != true) {
+            flush_rewrite_rules();
+            update_option('qlsv_diem_flush_rewrite', true);
+        }
+    }
+    
+    /**
+     * Thêm các biến query để sử dụng trong URL
+     */
+    public function add_query_vars($vars) {
+        $vars[] = 'sinhvien';
+        $vars[] = 'monhoc';
+        $vars[] = 'lop';
+        return $vars;
+    }
+
+    /**
+     * Xử lý điểm queries để ngăn lỗi 404
+     */
+    public function handle_diem_queries($query) {
+        // Kiểm tra nếu đang xem trang điểm
+        if ($query->is_main_query() && (is_post_type_archive('diem') || $query->get('post_type') === 'diem')) {
+            // Thiết lập post type
+            $query->set('post_type', 'diem');
+            
+            // Đảm bảo không phải 404
+            $query->is_404 = false;
+            $query->is_archive = true;
+            $query->is_post_type_archive = true;
+            
+            // Tạo dummy post nếu cần
+            if (!$query->have_posts()) {
+                global $wp_query, $post;
+                if (empty($post)) {
+                    $dummy = new stdClass();
+                    $dummy->ID = 0;
+                    $dummy->post_title = 'Điểm';
+                    $dummy->post_type = 'diem';
+                    $dummy->post_status = 'publish';
+                    $post = $dummy;
+                }
+            }
+        }
+    }
+    
+    /**
+     * Hạn chế quyền chỉnh sửa điểm
+     */
+    public function restrict_diem_editing($allcaps, $caps, $args) {
+        // Kiểm tra nếu không phải admin hoặc giáo viên
+        if (!current_user_can('administrator') && !current_user_can('giaovien')) {
+            // Loại bỏ các capability liên quan đến chỉnh sửa điểm
+            $edit_caps = array(
+                'edit_diem',
+                'edit_diems',
+                'edit_published_diems',
+                'edit_private_diems',
+                'edit_others_diems',
+                'publish_diems',
+                'delete_diems',
+                'delete_published_diems',
+                'delete_private_diems',
+                'delete_others_diems'
+            );
+            
+            foreach ($edit_caps as $cap) {
+                if (isset($allcaps[$cap])) {
+                    $allcaps[$cap] = false;
+                }
+            }
+            
+            // Loại bỏ quyền chỉnh sửa các post thuộc type 'diem'
+            if (isset($args[0]) && $args[0] === 'edit_post' && isset($args[2])) {
+                $post_id = $args[2];
+                if (get_post_type($post_id) === 'diem') {
+                    if (isset($allcaps['edit_posts'])) {
+                        $allcaps['edit_posts'] = false;
+                    }
+                }
+            }
+        }
+        
+        return $allcaps;
+    }
+    
+    /**
+     * Shortcode tạo form nhập điểm
+     */
+    public function nhap_diem_shortcode($atts) {
+        // Kiểm tra quyền truy cập (chỉ admin và giáo viên)
+        if (!current_user_can('edit_posts') && !current_user_can('manage_options') && !current_user_can('giaovien')) {
+            return '<div class="qlsv-thong-bao">
+                <p>' . __('Bạn không có quyền nhập điểm. Chỉ giáo viên và quản trị viên mới thực hiện được chức năng này.', 'qlsv') . '</p>
+            </div>';
+        }
+        
+        $atts = shortcode_atts(array(), $atts);
+        
+        // Lấy danh sách sinh viên
+        $students = get_posts([
+            'post_type' => 'sinhvien',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ]);
+        
+        // Lấy danh sách môn học
+        $courses = get_posts([
+            'post_type' => 'monhoc',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ]);
+        
+        // Lấy danh sách lớp
+        $classes = get_posts([
+            'post_type' => 'lop',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ]);
+        
+        // Xử lý form submit
+        $message = '';
+        if (isset($_POST['submit_diem']) && isset($_POST['diem_nonce']) && wp_verify_nonce($_POST['diem_nonce'], 'submit_diem')) {
+            $sinh_vien_id = isset($_POST['sinh_vien']) ? intval($_POST['sinh_vien']) : 0;
+            $mon_hoc_id = isset($_POST['mon_hoc']) ? intval($_POST['mon_hoc']) : 0;
+            $lop_id = isset($_POST['lop']) ? intval($_POST['lop']) : 0;
+            $diem_tp1 = isset($_POST['diem_tp1']) ? floatval($_POST['diem_tp1']) : '';
+            $diem_tp2 = isset($_POST['diem_tp2']) ? floatval($_POST['diem_tp2']) : '';
+            $diem_cuoi_ki = isset($_POST['diem_cuoi_ki']) ? floatval($_POST['diem_cuoi_ki']) : '';
+            
+            if ($sinh_vien_id > 0 && $mon_hoc_id > 0) {
+                // Kiểm tra xem đã có điểm cho sinh viên và môn học này chưa
+                $args = array(
+                    'post_type' => 'diem',
+                    'posts_per_page' => 1,
+                    'meta_query' => array(
+                        'relation' => 'AND',
+                        array(
+                            'key' => 'sinh_vien',
+                            'value' => $sinh_vien_id,
+                            'compare' => '='
+                        ),
+                        array(
+                            'key' => 'mon_hoc',
+                            'value' => $mon_hoc_id,
+                            'compare' => '='
+                        )
+                    )
+                );
+                
+                $existing_grades = get_posts($args);
+                $post_id = 0;
+                
+                if (empty($existing_grades)) {
+                    // Tạo bản ghi điểm mới
+                    $sinh_vien_name = get_the_title($sinh_vien_id);
+                    $mon_hoc_name = get_the_title($mon_hoc_id);
+                    $post_title = sprintf('Điểm - %s - %s', $sinh_vien_name, $mon_hoc_name);
+                    
+                    $post_id = wp_insert_post(array(
+                        'post_title' => $post_title,
+                        'post_status' => 'publish',
+                        'post_type' => 'diem'
+                    ));
+                } else {
+                    $post_id = $existing_grades[0]->ID;
+                }
+                
+                if ($post_id > 0) {
+                    // Cập nhật thông tin điểm
+                    update_field('sinh_vien', $sinh_vien_id, $post_id);
+                    update_field('mon_hoc', $mon_hoc_id, $post_id);
+                    
+                    if ($lop_id > 0) {
+                        update_field('lop', $lop_id, $post_id);
+                    }
+                    
+                    update_field('diem_thanh_phan_1_', $diem_tp1, $post_id);
+                    update_field('diem_thanh_phan_2_', $diem_tp2, $post_id);
+                    update_field('diem_cuoi_ki_', $diem_cuoi_ki, $post_id);
+                    
+                    // Tính điểm trung bình và xếp loại
+                    $tb = 0;
+                    if (is_numeric($diem_tp1) && is_numeric($diem_tp2) && is_numeric($diem_cuoi_ki)) {
+                        $tb = round(($diem_tp1 * 0.2 + $diem_tp2 * 0.2 + $diem_cuoi_ki * 0.6), 2);
+                        
+                        // Xếp loại
+                        $xeploai = '';
+                        if ($tb >= 8.5) $xeploai = 'Giỏi';
+                        elseif ($tb >= 7) $xeploai = 'Khá';
+                        elseif ($tb >= 5.5) $xeploai = 'Trung bình';
+                        else $xeploai = 'Yếu';
+                        
+                        // Lưu điểm trung bình và xếp loại nếu có field
+                        if(function_exists('update_field')) {
+                            update_field('diem_trung_binh_', $tb, $post_id);
+                            update_field('xep_loai', $xeploai, $post_id);
+                        }
+                    }
+                    
+                    $message = '<div class="diem-success">Đã cập nhật điểm thành công!</div>';
+                } else {
+                    $message = '<div class="diem-error">Có lỗi xảy ra khi lưu điểm.</div>';
+                }
+            } else {
+                $message = '<div class="diem-error">Vui lòng chọn sinh viên và môn học.</div>';
+            }
+        }
+        
+        // Output form nhập điểm
+        ob_start();
+        
+        echo '<div class="nhap-diem-container">';
+        
+        if (!empty($message)) {
+            echo $message;
+        }
+        
+        echo '<h3>' . __('Nhập điểm sinh viên', 'qlsv') . '</h3>';
+        echo '<form class="nhap-diem-form" method="post" action="' . esc_url($_SERVER['REQUEST_URI']) . '">';
+        
+        // Sinh viên
+        echo '<div class="form-group">';
+        echo '<label for="sinh_vien">' . __('Sinh viên:', 'qlsv') . '</label>';
+        echo '<select name="sinh_vien" id="sinh_vien" required>';
+        echo '<option value="">' . __('-- Chọn sinh viên --', 'qlsv') . '</option>';
+        foreach ($students as $student) {
+            $selected = (isset($_POST['sinh_vien']) && $_POST['sinh_vien'] == $student->ID) ? 'selected' : '';
+            echo '<option value="' . $student->ID . '" ' . $selected . '>' . $student->post_title . '</option>';
+        }
+        echo '</select>';
+        echo '</div>';
+        
+        // Môn học
+        echo '<div class="form-group">';
+        echo '<label for="mon_hoc">' . __('Môn học:', 'qlsv') . '</label>';
+        echo '<select name="mon_hoc" id="mon_hoc" required>';
+        echo '<option value="">' . __('-- Chọn môn học --', 'qlsv') . '</option>';
+        foreach ($courses as $course) {
+            $selected = (isset($_POST['mon_hoc']) && $_POST['mon_hoc'] == $course->ID) ? 'selected' : '';
+            echo '<option value="' . $course->ID . '" ' . $selected . '>' . $course->post_title . '</option>';
+        }
+        echo '</select>';
+        echo '</div>';
+        
+        // Lớp
+        echo '<div class="form-group">';
+        echo '<label for="lop">' . __('Lớp:', 'qlsv') . '</label>';
+        echo '<select name="lop" id="lop">';
+        echo '<option value="">' . __('-- Chọn lớp --', 'qlsv') . '</option>';
+        foreach ($classes as $class) {
+            $selected = (isset($_POST['lop']) && $_POST['lop'] == $class->ID) ? 'selected' : '';
+            echo '<option value="' . $class->ID . '" ' . $selected . '>' . $class->post_title . '</option>';
+        }
+        echo '</select>';
+        echo '</div>';
+        
+        // Điểm thành phần 1
+        echo '<div class="form-group">';
+        echo '<label for="diem_tp1">' . __('Điểm thành phần 1:', 'qlsv') . '</label>';
+        $diem_tp1_value = isset($_POST['diem_tp1']) ? esc_attr($_POST['diem_tp1']) : '';
+        echo '<input type="number" step="0.1" min="0" max="10" name="diem_tp1" id="diem_tp1" value="' . $diem_tp1_value . '" />';
+        echo '</div>';
+        
+        // Điểm thành phần 2
+        echo '<div class="form-group">';
+        echo '<label for="diem_tp2">' . __('Điểm thành phần 2:', 'qlsv') . '</label>';
+        $diem_tp2_value = isset($_POST['diem_tp2']) ? esc_attr($_POST['diem_tp2']) : '';
+        echo '<input type="number" step="0.1" min="0" max="10" name="diem_tp2" id="diem_tp2" value="' . $diem_tp2_value . '" />';
+        echo '</div>';
+        
+        // Điểm cuối kỳ
+        echo '<div class="form-group">';
+        echo '<label for="diem_cuoi_ki">' . __('Điểm cuối kỳ:', 'qlsv') . '</label>';
+        $diem_cuoi_ki_value = isset($_POST['diem_cuoi_ki']) ? esc_attr($_POST['diem_cuoi_ki']) : '';
+        echo '<input type="number" step="0.1" min="0" max="10" name="diem_cuoi_ki" id="diem_cuoi_ki" value="' . $diem_cuoi_ki_value . '" />';
+        echo '</div>';
+        
+        // Nonce field
+        wp_nonce_field('submit_diem', 'diem_nonce');
+        
+        // Submit button
+        echo '<button type="submit" name="submit_diem" value="1" class="button button-primary">' . __('Lưu điểm', 'qlsv') . '</button>';
+        
+        echo '</form>';
+        
+        echo '<style>
+            .nhap-diem-container {
+                margin-bottom: 30px;
+                padding: 20px;
+                background: #f9f9f9;
+                border-radius: 5px;
+                border: 1px solid #ddd;
+            }
+            .nhap-diem-form .form-group {
+                margin-bottom: 15px;
+            }
+            .nhap-diem-form label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+            .nhap-diem-form select,
+            .nhap-diem-form input[type="number"] {
+                width: 100%;
+                max-width: 300px;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            .nhap-diem-form button {
+                background-color: #0073aa;
+                color: #fff;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            .diem-success {
+                padding: 10px;
+                margin-bottom: 15px;
+                background-color: #dff0d8;
+                border: 1px solid #d6e9c6;
+                border-radius: 4px;
+                color: #3c763d;
+            }
+            .diem-error {
+                padding: 10px;
+                margin-bottom: 15px;
+                background-color: #f2dede;
+                border: 1px solid #ebccd1;
+                border-radius: 4px;
+                color: #a94442;
+            }
+        </style>';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
     }
 } 

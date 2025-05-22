@@ -89,7 +89,18 @@ define( 'WP_DEBUG', false );
 
 /* Add any custom values between this line and the "stop editing" line. */
 
+// Tăng giới hạn bộ nhớ cho WordPress
+define('WP_MEMORY_LIMIT', '512M');
+define('WP_MAX_MEMORY_LIMIT', '1024M');
 
+// Tăng thời gian thực thi script
+@ini_set('max_execution_time', 300);
+
+// Tăng giới hạn kích thước yêu cầu
+@ini_set('post_max_size', '64M');
+
+// Tối ưu hóa truy vấn WordPress
+define('SAVEQUERIES', false);
 
 /* That's all, stop editing! Happy publishing. */
 

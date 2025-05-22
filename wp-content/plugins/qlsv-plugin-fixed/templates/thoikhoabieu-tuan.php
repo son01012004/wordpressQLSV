@@ -18,9 +18,33 @@ $all_teachers = isset($all_teachers) ? $all_teachers : array();
 $selected_class = isset($selected_class) ? $selected_class : 0;
 $selected_course = isset($selected_course) ? $selected_course : 0;
 $selected_teacher = isset($selected_teacher) ? $selected_teacher : 0;
+$is_admin = isset($is_admin) ? $is_admin : false;
+$is_teacher = isset($is_teacher) ? $is_teacher : false;
+$is_student = isset($is_student) ? $is_student : false;
 ?>
 
 <div class="thoikhoabieu-container">
+    <?php if ($is_admin): ?>
+    <div class="tkb-admin-controls">
+        <a href="<?php echo esc_url(add_query_arg('action', 'add', get_page_link(get_option('qlsv_tkb_add_edit_page', '')))); ?>" class="tkb-admin-btn">
+            <span><?php esc_html_e('Thêm lịch học mới', 'qlsv'); ?></span>
+        </a>
+    </div>
+    <?php endif; ?>
+
+    <!-- Tiêu đề trang tùy theo vai trò -->
+    <h2 class="tkb-title">
+        <?php 
+        if ($is_teacher) {
+            esc_html_e('Lịch giảng dạy của giáo viên', 'qlsv');
+        } elseif ($is_student) {
+            esc_html_e('Lịch học của sinh viên', 'qlsv');
+        } else {
+            esc_html_e('Thời khóa biểu', 'qlsv');
+        }
+        ?>
+    </h2>
+    
     <!-- Bộ lọc thời khóa biểu -->
     <div class="thoikhoabieu-filter">
         <form class="filter-form" method="get" action="<?php echo esc_url(get_permalink()); ?>">
@@ -33,6 +57,7 @@ $selected_teacher = isset($selected_teacher) ? $selected_teacher : 0;
             }
             ?>
             
+            <?php if ($is_admin || $is_teacher): ?>
             <div class="filter-group">
                 <label for="lop_filter"><?php esc_html_e('Lớp:', 'qlsv'); ?></label>
                 <select name="lop" id="lop_filter">
@@ -50,6 +75,7 @@ $selected_teacher = isset($selected_teacher) ? $selected_teacher : 0;
                     <?php endforeach; ?>
                 </select>
             </div>
+            <?php endif; ?>
             
             <div class="filter-group">
                 <label for="monhoc_filter"><?php esc_html_e('Môn học:', 'qlsv'); ?></label>
@@ -63,6 +89,7 @@ $selected_teacher = isset($selected_teacher) ? $selected_teacher : 0;
                 </select>
             </div>
 
+            <?php if ($is_admin): ?>
             <div class="filter-group">
                 <label for="teacher_filter"><?php esc_html_e('Giáo viên:', 'qlsv'); ?></label>
                 <select name="teacher" id="teacher_filter">
@@ -74,6 +101,7 @@ $selected_teacher = isset($selected_teacher) ? $selected_teacher : 0;
                     <?php endforeach; ?>
                 </select>
             </div>
+            <?php endif; ?>
             
             <div class="filter-group">
                 <label for="view_filter"><?php esc_html_e('Hiển thị:', 'qlsv'); ?></label>
@@ -116,41 +144,84 @@ $selected_teacher = isset($selected_teacher) ? $selected_teacher : 0;
                 <div class="tkb-day">
                     <h3><?php echo esc_html($day); ?></h3>
                     
-                    <?php foreach ($tkb_data[$day] as $tkb_item) : ?>
+                    <?php foreach ($tkb_data[$day] as $tkb) : 
+                        // Lấy thông tin môn học từ trường quan hệ
+                        $mon_hoc_id = get_field('mon_hoc', $tkb['ID']);
+                        $mon_hoc_name = '';
+                        if ($mon_hoc_id) {
+                            $mon_hoc = get_post($mon_hoc_id);
+                            $mon_hoc_name = $mon_hoc ? $mon_hoc->post_title : '';
+                        }
+                        
+                        // Lấy thông tin lớp từ trường quan hệ
+                        $lop_id = get_field('lop', $tkb['ID']);
+                        $lop_name = '';
+                        $khoa_name = '';
+                        if ($lop_id) {
+                            $lop = get_post($lop_id);
+                            $lop_name = $lop ? $lop->post_title : '';
+                            // Lấy thông tin khoa từ lớp nếu có
+                            $khoa = get_field('khoa', $lop_id);
+                            $khoa_name = $khoa ? $khoa : '';
+                        }
+                        
+                        // Lấy thông tin phòng học
+                        $phong = get_field('phong', $tkb['ID']);
+                        
+                        // Lấy thông tin giảng viên từ trường user
+                        $giang_vien_id = get_field('giang_vien', $tkb['ID']);
+                        $giang_vien_name = '';
+                        if ($giang_vien_id) {
+                            $giang_vien = get_userdata($giang_vien_id);
+                            $giang_vien_name = $giang_vien ? $giang_vien->display_name : '';
+                        }
+                        
+                        // Lấy thông tin giờ bắt đầu và kết thúc
+                        $gio_bat_dau = get_field('gio_bat_dau', $tkb['ID']);
+                        $gio_ket_thuc = get_field('gio_ket_thuc', $tkb['ID']);
+                        
+                        // Lấy thông tin tuần học
+                        $tuan_hoc = get_field('tuan_hoc', $tkb['ID']);
+                    ?>
                         <div class="tkb-item">
                             <div class="tkb-time">
-                                <?php echo esc_html($tkb_item['gio_bat_dau']) . ' - ' . esc_html($tkb_item['gio_ket_thuc']); ?>
+                                <?php echo esc_html($gio_bat_dau) . ' - ' . esc_html($gio_ket_thuc); ?>
                             </div>
                             
                             <div class="tkb-details">
                                 <div class="tkb-course">
-                                    <strong><?php echo esc_html($tkb_item['mon_hoc']); ?></strong>
+                                    <strong><?php echo esc_html($mon_hoc_name); ?></strong>
+                                    <?php if ($is_admin): ?>
+                                    <a href="<?php echo esc_url(add_query_arg(array('action' => 'edit', 'tkb_id' => $tkb['ID']), get_page_link(get_option('qlsv_tkb_add_edit_page', '')))); ?>" class="tkb-edit-link">
+                                        <span class="dashicons dashicons-edit"></span>
+                                    </a>
+                                    <?php endif; ?>
                                 </div>
                                 
                                 <div class="tkb-info">
                                     <span class="tkb-class">
-                                        <strong>Lớp:</strong> <?php echo esc_html($tkb_item['lop']); ?>
+                                        <strong>Lớp:</strong> <?php echo esc_html($lop_name); ?>
                                     </span>
                                     
-                                    <?php if (!empty($tkb_item['lop_info']['khoa'])) : ?>
+                                    <?php if (!empty($khoa_name)) : ?>
                                         <span class="tkb-khoa">
-                                            <strong>Khoa:</strong> <?php echo esc_html($tkb_item['lop_info']['khoa']); ?>
+                                            <strong>Khoa:</strong> <?php echo esc_html($khoa_name); ?>
                                         </span>
                                     <?php endif; ?>
                                     
-                                    <?php if (!empty($tkb_item['phong'])) : ?>
+                                    <?php if (!empty($phong)) : ?>
                                         <span class="tkb-room">
-                                            <strong>Phòng:</strong> <?php echo esc_html($tkb_item['phong']); ?>
+                                            <strong>Phòng:</strong> <?php echo esc_html($phong); ?>
                                         </span>
                                     <?php endif; ?>
                                     
                                     <span class="tkb-lecturer">
-                                        <strong>GV:</strong> <?php echo esc_html($tkb_item['giang_vien']); ?>
+                                        <strong>GV:</strong> <?php echo !empty($giang_vien_name) ? esc_html($giang_vien_name) : 'Chưa phân công'; ?>
                                     </span>
                                     
-                                    <?php if (!empty($tkb_item['tuan_hoc'])) : ?>
+                                    <?php if (!empty($tuan_hoc)) : ?>
                                         <span class="tkb-weeks">
-                                            <strong>Tuần:</strong> <?php echo esc_html($tkb_item['tuan_hoc']); ?>
+                                            <strong>Tuần:</strong> <?php echo esc_html($tuan_hoc); ?>
                                         </span>
                                     <?php endif; ?>
                                 </div>
@@ -168,6 +239,32 @@ $selected_teacher = isset($selected_teacher) ? $selected_teacher : 0;
         margin-bottom: 30px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     }
+    
+    .tkb-title {
+        margin-bottom: 20px;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .tkb-admin-controls {
+        margin-bottom: 20px;
+    }
+    
+    .tkb-admin-btn {
+        display: inline-block;
+        background: #0073aa;
+        color: #fff;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    
+    .tkb-admin-btn:hover {
+        background: #005177;
+        color: #fff;
+    }
+    
     .thoikhoabieu-filter {
         margin-bottom: 20px;
         padding: 15px;
@@ -248,23 +345,26 @@ $selected_teacher = isset($selected_teacher) ? $selected_teacher : 0;
     }
     .tkb-course {
         margin-bottom: 8px;
-        font-size: 16px;
+        display: flex;
+        align-items: center;
     }
-    .tkb-course strong {
-        color: #222;
+    .tkb-edit-link {
+        margin-left: 8px;
+        color: #0073aa;
+        text-decoration: none;
+    }
+    .tkb-edit-link:hover {
+        color: #005177;
     }
     .tkb-info {
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
-        font-size: 0.95em;
+        gap: 15px;
+        font-size: 14px;
         color: #555;
     }
-    .tkb-info span {
-        margin-right: 5px;
-    }
     .tkb-info strong {
-        color: #444;
+        color: #333;
     }
     .no-data {
         padding: 20px;
@@ -282,17 +382,11 @@ $selected_teacher = isset($selected_teacher) ? $selected_teacher : 0;
             flex-direction: column;
         }
         .tkb-time {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         .tkb-info {
             flex-direction: column;
             gap: 5px;
         }
-    }
-    
-    /* Fix for button text case issue */
-    button.filter-btn {
-        text-transform: none !important;
-        font-variant: normal !important;
     }
 </style> 

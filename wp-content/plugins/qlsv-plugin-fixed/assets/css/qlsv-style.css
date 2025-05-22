@@ -1,0 +1,358 @@
+/* Error messages */
+.qlsv-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Success messages */
+.tkb-success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Admin button styles */
+.tkb-admin-btn {
+    display: inline-block;
+    background: #0073aa;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.tkb-admin-btn:hover {
+    background: #005177;
+    color: #fff;
+}
+
+/* Edit button styles */
+.tkb-edit-btn {
+    display: inline-block;
+    background: #0073aa;
+    color: #fff;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.tkb-edit-btn:hover {
+    background: #005177;
+    color: #fff;
+}
+
+/* Tkb title styles */
+.tkb-title {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Role-based styles */
+.tkb-admin-controls {
+    margin-bottom: 20px;
+}
+
+.tkb-edit-link {
+    margin-left: 8px;
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.tkb-edit-link:hover {
+    color: #005177;
+}
+
+/* Form container styles */
+.tkb-form-container,
+.tkb-detail-container {
+    max-width: 800px;
+    margin: 0 auto 30px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.tkb-form-title,
+.tkb-detail-title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #23282d;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+}
+
+/* Form styling */
+.tkb-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tkb-form-group {
+    margin-bottom: 10px;
+    flex: 1;
+}
+
+.tkb-form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.tkb-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.tkb-form-group .required {
+    color: #d63638;
+}
+
+.tkb-input,
+.tkb-form-group input[type="text"],
+.tkb-form-group input[type="time"],
+.tkb-form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 15px;
+    transition: border-color 0.3s;
+}
+
+.tkb-input:focus,
+.tkb-form-group input[type="text"]:focus,
+.tkb-form-group input[type="time"]:focus,
+.tkb-form-group select:focus {
+    border-color: #0073aa;
+    outline: none;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+.tkb-form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.tkb-submit-btn {
+    background-color: #0073aa;
+    color: #fff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+.tkb-submit-btn:hover {
+    background-color: #005177;
+}
+
+.tkb-submit-btn .dashicons {
+    margin-right: 8px;
+}
+
+.tkb-cancel-btn {
+    background-color: #f7f7f7;
+    color: #555;
+    border: 1px solid #ccc;
+    padding: 12px 25px;
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+.tkb-cancel-btn:hover {
+    background-color: #e9e9e9;
+    color: #555;
+}
+
+.tkb-cancel-btn .dashicons {
+    margin-right: 8px;
+}
+
+/* Navigation */
+.tkb-navigation {
+    margin-bottom: 20px;
+}
+
+.tkb-back-btn {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: #0073aa;
+    font-weight: 600;
+}
+
+.tkb-back-btn:hover {
+    color: #005177;
+    text-decoration: underline;
+}
+
+.tkb-back-btn .dashicons {
+    margin-right: 5px;
+}
+
+/* Instructions */
+.tkb-instructions {
+    background-color: #f0f8ff;
+    border-left: 4px solid #0073aa;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 0 4px 4px 0;
+}
+
+.tkb-instructions p {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+/* Debug info */
+.tkb-debug {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.tkb-debug p {
+    margin: 5px 0;
+}
+
+/* Detail page styles */
+.tkb-detail-info {
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.tkb-detail-row {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    padding: 12px 0;
+}
+
+.tkb-detail-row:last-child {
+    border-bottom: none;
+}
+
+.tkb-detail-label {
+    flex: 0 0 140px;
+    font-weight: 600;
+    color: #444;
+}
+
+.tkb-detail-value {
+    flex: 1;
+    color: #333;
+}
+
+.tkb-detail-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.tkb-btn {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.tkb-primary-btn {
+    background-color: #0073aa;
+    color: #fff;
+}
+
+.tkb-primary-btn:hover {
+    background-color: #005177;
+    color: #fff;
+}
+
+.tkb-primary-btn .dashicons {
+    margin-right: 8px;
+}
+
+/* Action buttons for table */
+.tkb-actions {
+    white-space: nowrap;
+    text-align: center;
+}
+
+.tkb-actions a {
+    display: inline-block;
+    margin: 0 5px;
+    text-decoration: none;
+}
+
+.tkb-view-btn {
+    color: #0073aa;
+}
+
+.tkb-view-btn:hover {
+    color: #005177;
+}
+
+.tkb-table-edit-btn {
+    color: #ffba00;
+}
+
+.tkb-table-edit-btn:hover {
+    color: #e5a700;
+}
+
+@media (max-width: 768px) {
+    .tkb-form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .tkb-form-actions {
+        flex-direction: column;
+    }
+    
+    .tkb-detail-row {
+        flex-direction: column;
+    }
+    
+    .tkb-detail-label {
+        margin-bottom: 5px;
+    }
+} 

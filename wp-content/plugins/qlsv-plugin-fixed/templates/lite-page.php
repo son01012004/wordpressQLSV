@@ -1,8 +1,7 @@
 <?php
 /**
- * Template hiển thị trang archive cho post type 'diem'
- *
- * @package QLSV
+ * Template Name: Kết quả học tập (Lite)
+ * Description: Template hiển thị kết quả học tập với phiên bản tối ưu hóa bộ nhớ
  */
 
 get_header();
@@ -11,9 +10,9 @@ get_header();
 if (!is_user_logged_in()) {
     ?>
     <div class="qlsv-container">
-        <div class="qlsv-thong-bao">
-            <p><?php esc_html_e('Bạn cần đăng nhập để xem bảng điểm.', 'qlsv'); ?></p>
-            <p><a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>" class="button"><?php esc_html_e('Đăng nhập', 'qlsv'); ?></a></p>
+        <div class="qlsv-thong-bao qlsv-error">
+            <p><?php esc_html_e('Bạn cần đăng nhập để xem kết quả học tập.', 'qlsv'); ?></p>
+            <p><a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>" class="button button-primary"><?php esc_html_e('Đăng nhập', 'qlsv'); ?></a></p>
         </div>
     </div>
     <?php
@@ -48,14 +47,14 @@ if (!$is_student) {
     if ($is_student) {
         $student_query->the_post();
         $student_id = get_the_ID();
+        $student_name = get_the_title();
         wp_reset_postdata();
     }
 }
-
 ?>
 
 <div class="qlsv-container">
-    <h1 class="qlsv-page-title"><?php esc_html_e('Bảng điểm', 'qlsv'); ?></h1>
+    <h1 class="qlsv-page-title"><?php esc_html_e('Kết quả học tập', 'qlsv'); ?></h1>
     
     <?php
     // Hiển thị thông báo trang đang sử dụng phiên bản nhẹ
@@ -63,7 +62,7 @@ if (!$is_student) {
         <p><strong>Thông báo:</strong> Đang sử dụng phiên bản tối ưu hiển thị bảng điểm.</p>
     </div>';
     
-    // Lấy tham số tìm kiếm từ URL với GET parameters trực tiếp
+    // Lấy tham số tìm kiếm từ URL
     $selected_student = isset($_GET['sinhvien']) ? intval($_GET['sinhvien']) : 0;
     $selected_course = isset($_GET['monhoc']) ? intval($_GET['monhoc']) : 0;
     $selected_class = isset($_GET['lop']) ? intval($_GET['lop']) : 0;
@@ -71,7 +70,7 @@ if (!$is_student) {
     
     // Nếu là sinh viên (không phải admin hoặc giáo viên)
     if ($is_student && !$is_admin && !$is_teacher) {
-        // Tìm ID sinh viên dựa trên email
+        // Tìm ID sinh viên dựa trên email nếu chưa có
         if (!isset($student_id)) {
             $args = array(
                 'post_type' => 'sinhvien',
@@ -99,19 +98,19 @@ if (!$is_student) {
             echo '<h2>' . esc_html__('Sinh viên:', 'qlsv') . ' ' . esc_html($student_name) . '</h2>';
             echo '</div>';
             
-            // Hiển thị bảng điểm của sinh viên sử dụng phiên bản lite
+            // Hiển thị bảng điểm của sinh viên
             echo do_shortcode('[qlsv_bang_diem_lite sinhvien_id="' . $student_id . '"]');
         } else {
             ?>
-            <div class="qlsv-thong-bao">
+            <div class="qlsv-thong-bao qlsv-error">
                 <p><?php esc_html_e('Không tìm thấy thông tin sinh viên cho tài khoản này.', 'qlsv'); ?></p>
             </div>
             <?php
         }
     } 
-    // Nếu là admin hoặc giáo viên
+    // Nếu là admin hoặc giáo viên - hiển thị luôn bảng điểm
     elseif ($is_admin || $is_teacher) {
-        // Form tìm kiếm điểm với hướng dẫn cụ thể
+        // Form tìm kiếm điểm
         ?>
         <div class="search-form-container" style="margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;">
             <h3 style="margin-top: 0; margin-bottom: 15px; color: #0073aa;">Tìm kiếm kết quả học tập</h3>
@@ -180,16 +179,16 @@ if (!$is_student) {
         </div>
         
         <?php
-        // Hiển thị kết quả - luôn hiển thị bảng điểm (dù có tìm kiếm hay không)
+        // Hiển thị kết quả - luôn hiển thị bảng điểm 
         echo '<h3 style="margin-top: 30px; border-bottom: 2px solid #0073aa; padding-bottom: 8px;">Bảng điểm</h3>';
         
-        // Hiển thị kết quả sử dụng shortcode 
+        // Hiển thị bảng điểm dựa trên tiêu chí tìm kiếm nếu có, ngược lại hiển thị tất cả
         echo do_shortcode('[qlsv_bang_diem_lite sinhvien_id="' . $selected_student . '" monhoc_id="' . $selected_course . '" lop_id="' . $selected_class . '" page="' . $diem_page . '"]');
     } 
     // Trường hợp khác
     else {
         ?>
-        <div class="qlsv-thong-bao">
+        <div class="qlsv-thong-bao qlsv-error">
             <p><?php esc_html_e('Bạn không có quyền xem bảng điểm.', 'qlsv'); ?></p>
         </div>
         <?php
@@ -199,117 +198,92 @@ if (!$is_student) {
 
 <style>
     .qlsv-container {
-        max-width: 1200px !important;
-        margin: 0 auto !important;
-        padding: 20px !important;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
     }
     
     .qlsv-page-title {
-        margin-bottom: 30px !important;
-        font-size: 28px !important;
-        color: #333 !important;
-        border-bottom: 2px solid #f0f0f0 !important;
-        padding-bottom: 15px !important;
+        margin-bottom: 30px;
+        font-size: 28px;
+        color: #333;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 15px;
     }
     
     .qlsv-thong-bao {
-        padding: 20px !important;
-        background: #f8f8f8 !important;
-        border-left: 4px solid #ccc !important;
-        margin-bottom: 20px !important;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+    
+    .qlsv-error {
+        background-color: #f8d7da;
+        border-left: 4px solid #dc3545;
     }
     
     .student-info-header {
-        background: #f9f9f9 !important;
-        padding: 15px 20px !important;
-        border-radius: 8px !important;
-        margin-bottom: 20px !important;
-        border: 1px solid #eee !important;
+        background: #f9f9f9;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #eee;
     }
     
     .student-info-header h2 {
-        margin: 0 !important;
-        font-size: 20px !important;
-        color: #333 !important;
+        margin: 0;
+        font-size: 20px;
+        color: #333;
     }
     
     /* Form tìm kiếm */
     .search-diem-form {
-        margin-bottom: 30px !important;
+        margin-bottom: 30px;
     }
     
     .search-diem-form select, 
     .search-diem-form input, 
     .search-diem-form button {
-        width: 100% !important;
-        padding: 10px !important;
-        border: 1px solid #ddd !important;
-        border-radius: 4px !important;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
     }
     
     .search-diem-form button {
-        background: #0073aa !important;
-        border: none !important;
-        color: white !important;
-        padding: 12px !important;
-        cursor: pointer !important;
-        border-radius: 4px !important;
-        font-weight: 500 !important;
+        background: #0073aa;
+        border: none;
+        color: white;
+        padding: 12px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-weight: 500;
     }
     
     /* Đảm bảo bảng điểm hiện thị đúng */
     .diem-table {
-        width: 100% !important;
-        border-collapse: collapse !important;
-        margin-top: 20px !important;
-        border: 1px solid #dee2e6 !important;
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
     }
     
     .diem-table th,
     .diem-table td {
-        border: 1px solid #dee2e6 !important;
-        padding: 10px !important;
-        text-align: left !important;
+        border: 1px solid #ddd;
+        padding: 8px;
     }
     
     .diem-table th {
-        background-color: #f8f9fa !important;
-        font-weight: 600 !important;
+        background-color: #f2f2f2;
+        font-weight: bold;
     }
     
     .diem-table tr:nth-child(even) {
-        background-color: #f8f9fa !important;
+        background-color: #f9f9f9;
     }
     
     .diem-table tr:hover {
-        background-color: #f1f1f1 !important;
-    }
-    
-    /* CSS cho phân trang */
-    .pagination {
-        margin-top: 20px !important;
-        text-align: center !important;
-    }
-    
-    .pagination a {
-        display: inline-block !important;
-        margin: 0 3px !important;
-        padding: 8px 12px !important;
-        border: 1px solid #ddd !important;
-        text-decoration: none !important;
-        color: #0073aa !important;
-        background-color: #fff !important;
-        border-radius: 4px !important;
-    }
-    
-    .pagination a:hover {
-        background-color: #e9ecef !important;
-    }
-    
-    .pagination a.current-page {
-        background-color: #0073aa !important;
-        color: #fff !important;
-        border-color: #0073aa !important;
+        background-color: #f1f1f1;
     }
 </style>
 
