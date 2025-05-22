@@ -11609,3 +11609,446 @@ Stack trace:
 #18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
 #19 {main}
   thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 17:58:39 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 17:58:39 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 17:58:39 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 17:58:39 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 17:58:39 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 17:58:40 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 18:00:40 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:00:40 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:00:40 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:00:40 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:00:40 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:00:40 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 18:01:07 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:01:07 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:01:07 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:01:07 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:01:07 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:01:17 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:01:17 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:01:17 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:01:17 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:01:17 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:01:42 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:01:42 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:01:42 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:01:42 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:01:42 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:01:43 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:01:43 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:01:43 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:01:43 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:01:43 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:01:46 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:01:46 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:01:46 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:01:46 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:01:46 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:01:57 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:01:57 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:01:57 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:01:57 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:01:57 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:02:05 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:02:05 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:02:05 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:02:05 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:02:05 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:02:11 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:02:11 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:02:11 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:02:11 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:02:11 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:02:33 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:02:33 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:02:33 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:02:33 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:02:33 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:02:35 UTC] Phản hồi từ Gemini API: Code 200 | Body: {
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Tôi xin lỗi, nhưng tôi không thể dự đoán thời tiết.  Để biết trời mai có mưa hay không, bạn nên tham khảo các dự báo thời tiết từ các nguồn tin cậy như ứng dụng thời tiết, trang web dự báo thời tiết hoặc bản tin thời tiết trên truyền hình.\n"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "avgLogprobs": -0.19281919797261557
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 27,
+    "candidatesTokenCount": 60,
+    "totalTokenCount": 87,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 27
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 60
+      }
+    ]
+  },
+  "modelVersion": "gemini-1.5-flash"
+}
+
+[22-May-2025 18:02:41 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:02:41 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:02:41 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:02:41 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:02:41 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:02:41 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 18:02:52 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:02:52 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:02:52 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:02:52 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:02:52 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:03:01 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:03:01 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:03:01 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:03:01 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:03:01 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:03:02 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:03:02 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:03:02 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:03:02 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:03:02 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:03:03 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:03:03 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:03:03 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:03:03 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:03:03 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:04:42 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:04:42 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:04:42 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:04:42 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:04:42 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:04:42 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 18:06:43 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:06:43 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:06:43 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:06:43 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:06:43 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:06:43 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 18:08:44 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:08:44 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:08:44 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:08:44 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:08:44 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:08:44 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 18:10:45 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:10:45 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:10:45 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:10:45 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:10:45 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:10:46 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 18:12:46 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:12:46 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:12:46 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:12:46 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:12:46 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:12:46 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 18:14:08 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:14:08 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:14:08 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:14:08 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:14:08 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:14:08 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 18:14:12 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:14:12 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:14:12 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:14:12 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:14:12 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:14:13 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:14:14 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:14:14 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:14:14 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:14:14 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:14:15 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:14:15 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:14:15 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:14:15 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:14:15 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:14:19 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:14:19 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:14:19 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:14:19 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:14:19 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:14:20 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:14:20 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:14:20 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:14:20 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:14:20 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:14:27 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:14:27 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:14:27 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:14:27 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:14:27 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:14:35 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:14:35 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:14:35 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:14:35 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:14:35 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:15:22 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:15:22 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:15:22 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:15:22 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:15:22 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:15:22 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176
+[22-May-2025 18:17:22 UTC] PHP Warning:  Constant WP_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 54
+[22-May-2025 18:17:22 UTC] PHP Warning:  Constant WP_MAX_MEMORY_LIMIT already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 55
+[22-May-2025 18:17:22 UTC] PHP Warning:  Constant WP_DEBUG already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 64
+[22-May-2025 18:17:22 UTC] PHP Warning:  Constant WP_DEBUG_DISPLAY already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 65
+[22-May-2025 18:17:22 UTC] PHP Warning:  Constant SAVEQUERIES already defined in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\qlsv-plugin-fixed\wp-config-memory.php on line 68
+[22-May-2025 18:17:22 UTC] PHP Fatal error:  Uncaught Exception: Array field must have the "item" php-doc attribute with callable value, class :Org\Wplake\Advanced_Views\Groups\Card_Data in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php:176
+Stack trace:
+#0 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(219): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForRepeaterField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#1 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php(323): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getDefaultsForField(Object(Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\FieldInfo), Array)
+#2 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\src\Groups\Card_Data.php(488): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\GroupInfo::getGroupInfo()
+#3 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(47): Org\Wplake\Advanced_Views\Groups\Card_Data::getGroupInfo()
+#4 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(64): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->getAcfGroupInfo('Org\\Wplake\\Adva...')
+#5 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(96): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadFiles('Org\\Wplake\\Adva...', Array)
+#6 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\Loader.php(140): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->loadDirectory('D:\\xampp\\htdocs...', 'Org\\Wplake\\Adva...', '/.php$/')
+#7 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\acf-views.php(137): Org\Wplake\Advanced_Views\Vendors\LightSource\AcfGroups\Loader->signUpGroups('Org\\Wplake\\Adva...', 'D:\\xampp\\htdocs...')
+#8 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): class@anonymous->Org\Wplake\Advanced_Views\{closure}(6)
+#9 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#10 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#11 D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\advanced-custom-fields\acf.php(426): do_action('acf/init', 6)
+#12 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(324): ACF->init('')
+#13 D:\xampp\htdocs\wordpressQLSV\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#14 D:\xampp\htdocs\wordpressQLSV\wp-includes\plugin.php(517): WP_Hook->do_action(Array)
+#15 D:\xampp\htdocs\wordpressQLSV\wp-settings.php(727): do_action('init')
+#16 D:\xampp\htdocs\wordpressQLSV\wp-config.php(117): require_once('D:\\xampp\\htdocs...')
+#17 D:\xampp\htdocs\wordpressQLSV\wp-load.php(50): require_once('D:\\xampp\\htdocs...')
+#18 D:\xampp\htdocs\wordpressQLSV\wp-admin\admin-ajax.php(22): require_once('D:\\xampp\\htdocs...')
+#19 {main}
+  thrown in D:\xampp\htdocs\wordpressQLSV\wp-content\plugins\acf-views\prefixed_vendors\vendor\lightsource\acf-groups\src\GroupInfo.php on line 176

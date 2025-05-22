@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple Gemini Floating Chatbot (No AJAX)
  * Description: Plugin đơn giản để tích hợp Gemini API làm chatbot nổi ở góc phải trên tất cả các trang, không dùng AJAX.
- * Version: 1.1.3
+ * Version: 1.1.4
  * Author: TenBanCuaBan
  * License: GPLv2 or later
  * Text Domain: simple-gemini-floating-chatbot
@@ -18,8 +18,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function epu_faq_data() {
     return [
-        'giới thiệu trường' => 'Trường Đại học Điện lực là trường đại học công lập đa ngành, trực thuộc Bộ Công Thương, chuyên đào tạo và nghiên cứu trong lĩnh vực năng lượng, đặc biệt là điện lực. Trường có hai cơ sở tại 235 Hoàng Quốc Việt, Hà Nội và Tân Minh, Sóc Sơn, Hà Nội. Với sứ mệnh đào tạo nguồn nhân lực chất lượng cao và nghiên cứu khoa học công nghệ, trường đã đạt nhiều thành tựu, bao gồm Huân chương Độc lập hạng Ba và Huân chương Lao động các hạng. Trường hiện đào tạo 32 ngành đại học, 7 ngành tiến sĩ, 10 ngành thạc sĩ với quy mô gần 20.000 người học.',
         'tên trường là gì' => 'Trường tôi là Đại học Điện lực.',
+        'giới thiệu trường' => 'Trường Đại học Điện lực là trường đại học công lập đa ngành, trực thuộc Bộ Công Thương, chuyên đào tạo và nghiên cứu trong lĩnh vực năng lượng, đặc biệt là điện lực. Trường có hai cơ sở tại 235 Hoàng Quốc Việt, Hà Nội và Tân Minh, Sóc Sơn, Hà Nội. Với sứ mệnh đào tạo nguồn nhân lực chất lượng cao và nghiên cứu khoa học công nghệ, trường hiện đào tạo 32 ngành đại học, 7 ngành tiến sĩ, 10 ngành thạc sĩ với quy mô gần 20.000 người học. Trường đã đạt nhiều thành tựu, bao gồm Huân chương Độc lập hạng Ba và Huân chương Lao động các hạng.',
         'địa chỉ trường ở đâu' => 'Đại học Điện lực có 2 cơ sở: CS1 tại 235 Hoàng Quốc Việt, Hà Nội; CS2 tại Tân Minh, Sóc Sơn, Hà Nội.',
         'số điện thoại tuyển sinh' => 'Số điện thoại tuyển sinh là (024) 2245 2662.',
         'số điện thoại phòng tổ chức hành chính' => 'Số điện thoại Phòng Tổ chức - Hành chính là (024) 2218 5629.',
@@ -186,13 +186,13 @@ function display_floating_gemini_chatbot_no_ajax() {
         $_SESSION['epu_chat_history'] = $conversation_history;
     }
     ?>
-    <div id="<?php echo esc_attr($outer_container_id); ?>">
+    <div id="<?php echo esc_attr($outer_container_id); ?>" class="gemini-chatbot-collapsed">
         <div class="gemini-chatbot-inner-window">
-            <div class="gemini-chatbot-header" role="button" tabindex="0" aria-expanded="true" aria-controls="<?php echo esc_attr($chat_display_id); ?>">
+            <div class="gemini-chatbot-header" role="button" tabindex="0" aria-expanded="false" aria-controls="<?php echo esc_attr($chat_display_id); ?>">
                 <span>Chat với Trợ lý AI - Đại học Điện lực</span>
                 <div class="gemini-chatbot-header-buttons">
                     <button type="button" class="gemini-chatbot-clear-button" aria-label="Xóa lịch sử chat">🗑</button>
-                    <button type="button" class="gemini-chatbot-toggle-button" aria-label="Thu nhỏ hoặc mở rộng chatbot">–</button>
+                    <button type="button" class="gemini-chatbot-toggle-button" aria-label="Thu nhỏ hoặc mở rộng chatbot">+</button>
                 </div>
             </div>
             <div id="<?php echo esc_attr($chat_display_id); ?>" class="gemini-chat-content-area">
@@ -225,10 +225,13 @@ function display_floating_gemini_chatbot_no_ajax() {
         z-index: 99999; box-shadow: 0 6px 20px rgba(0,0,0,0.2); border-radius: 10px;
         overflow: hidden; background-color: #fff; font-family: Arial, sans-serif;
         transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, height 0.3s ease-in-out;
-        height: 520px;
+        height: 50px; /* Chiều cao mặc định khi thu nhỏ */
     }
     #<?php echo esc_attr($outer_container_id); ?>.gemini-chatbot-collapsed {
         height: 50px; overflow: hidden;
+    }
+    #<?php echo esc_attr($outer_container_id); ?>:not(.gemini-chatbot-collapsed) {
+        height: 520px; /* Chiều cao khi mở rộng */
     }
     #<?php echo esc_attr($outer_container_id); ?>.gemini-chatbot-collapsed .gemini-chat-content-area,
     #<?php echo esc_attr($outer_container_id); ?>.gemini-chatbot-collapsed .gemini-chat-input-area-simple {
@@ -240,7 +243,7 @@ function display_floating_gemini_chatbot_no_ajax() {
     .gemini-chatbot-header {
         background-color: #0073aa; color: white; padding: 12px 15px; font-size: 15px;
         font-weight: bold; display: flex; justify-content: space-between; align-items: center;
-        cursor: pointer; height: 50px; box-sizing: border-box;
+        height: 50px; box-sizing: border-box;
     }
     .gemini-chatbot-header-buttons {
         display: flex; align-items: center; gap: 8px;
@@ -301,8 +304,21 @@ function display_floating_gemini_chatbot_no_ajax() {
         const header = chatWrapper.find('.gemini-chatbot-header');
         const form = $('.gemini-chat-input-area-simple form');
 
+        // Hàm debounce để ngăn chặn bấm liên tiếp
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
         // Xử lý đóng/mở chatbot
-        function toggleChatWindow() {
+        const toggleChatWindow = debounce(function() {
             chatWrapper.toggleClass('gemini-chatbot-collapsed');
             if (chatWrapper.hasClass('gemini-chatbot-collapsed')) {
                 toggleButton.html('+');
@@ -313,13 +329,9 @@ function display_floating_gemini_chatbot_no_ajax() {
                 userInput.focus();
                 chatDisplay.scrollTop(chatDisplay[0].scrollHeight);
             }
-        }
-        header.on('click', function(e) {
-            if ($(e.target).is('.gemini-chatbot-clear-button, .gemini-chatbot-toggle-button')) {
-                return;
-            }
-            toggleChatWindow();
-        });
+        }, 200);
+
+        toggleButton.on('click', toggleChatWindow);
 
         // Xử lý xóa lịch sử chat
         clearButton.on('click', function() {
