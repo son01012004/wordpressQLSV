@@ -56,6 +56,10 @@ define( 'AUTH_SALT',        '{C%&]A$j<$;3s53``i]OWe+KwLVu^4L<Z1[wbxKQ_K;peUuG#`O
 define( 'SECURE_AUTH_SALT', 'w2+$g6XpC&J%kK_>izQcXFc!*hc9$4N|<?G@e)&=Z~bK^[tNZ/vPvrS8cL6isz]:' );
 define( 'LOGGED_IN_SALT',   'RtOp8](V`oX^_DVYv)qNPCgng)XV;!{_GD|9]KX[)!d)6h&0_Q&fH]FMO;=XVETK' );
 define( 'NONCE_SALT',       '/3#!nRC&-?(VPXQKT:Cef~!n,{+>$UscdJ8UnYgp[TVikEV/_&Z1a#!0_bN]P+-K' );
+define('GEMINI_API_KEY', 'AIzaSyDQ02oLKTeitmRSpcbF6ukx3w4tWeTodHA');
+define( 'WP_DEBUG_LOG', true ); // Ghi lỗi vào tệp /wp-content/debug.log
+define( 'WP_DEBUG_DISPLAY', false ); // Không hiển thị lỗi trực tiếp trên trang (quan trọng cho website đang chạy)
+@ini_set( 'display_errors', 0 ); // Tắt hiển thị lỗi trực tiếp, ưu tiên WP_DEBUG_DISPLAY
 
 /**#@-*/
 

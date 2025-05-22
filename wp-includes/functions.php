@@ -1817,11 +1817,11 @@ function is_blog_installed() {
 	$wp_tables = $wpdb->tables();
 	foreach ( $wp_tables as $table ) {
 		// The existence of custom user tables shouldn't suggest an unwise state or prevent a clean installation.
-		if ( defined( 'CUSTOM_USER_TABLE' ) && CUSTOM_USER_TABLE === $table ) {
+		if ( defined( 'CUSTOM_USER_TABLE' ) && constant( 'CUSTOM_USER_TABLE' ) === $table ) {
 			continue;
 		}
 
-		if ( defined( 'CUSTOM_USER_META_TABLE' ) && CUSTOM_USER_META_TABLE === $table ) {
+		if ( defined( 'CUSTOM_USER_META_TABLE' ) && constant( 'CUSTOM_USER_META_TABLE' ) === $table ) {
 			continue;
 		}
 
@@ -2222,7 +2222,7 @@ function wp_normalize_path( $path ) {
 function get_temp_dir() {
 	static $temp = '';
 	if ( defined( 'WP_TEMP_DIR' ) ) {
-		return trailingslashit( WP_TEMP_DIR );
+		return trailingslashit( constant( 'WP_TEMP_DIR' ) );
 	}
 
 	if ( $temp ) {
@@ -4705,7 +4705,7 @@ function wp_json_file_decode( $filename, $options = array() ) {
  */
 function _config_wp_home( $url = '' ) {
 	if ( defined( 'WP_HOME' ) ) {
-		return untrailingslashit( WP_HOME );
+		return untrailingslashit( constant( 'WP_HOME' ) );
 	}
 	return $url;
 }
@@ -4727,7 +4727,7 @@ function _config_wp_home( $url = '' ) {
  */
 function _config_wp_siteurl( $url = '' ) {
 	if ( defined( 'WP_SITEURL' ) ) {
-		return untrailingslashit( WP_SITEURL );
+		return untrailingslashit( constant( 'WP_SITEURL' ) );
 	}
 	return $url;
 }
@@ -6299,8 +6299,8 @@ function force_ssl_admin( $force = null ) {
  * @return string The guessed URL.
  */
 function wp_guess_url() {
-	if ( defined( 'WP_SITEURL' ) && '' !== WP_SITEURL ) {
-		$url = WP_SITEURL;
+	if ( defined( 'WP_SITEURL' ) && '' !== constant( 'WP_SITEURL' ) ) {
+		$url = constant( 'WP_SITEURL' );
 	} else {
 		$abspath_fix         = str_replace( '\\', '/', ABSPATH );
 		$script_filename_dir = dirname( $_SERVER['SCRIPT_FILENAME'] );
@@ -6470,7 +6470,7 @@ function get_main_network_id() {
 	$current_network = get_network();
 
 	if ( defined( 'PRIMARY_NETWORK_ID' ) ) {
-		$main_network_id = PRIMARY_NETWORK_ID;
+		$main_network_id = constant( 'PRIMARY_NETWORK_ID' );
 	} elseif ( isset( $current_network->id ) && 1 === (int) $current_network->id ) {
 		// If the current network has an ID of 1, assume it is the main network.
 		$main_network_id = 1;
@@ -8901,7 +8901,7 @@ function wp_get_wp_version() {
 function is_wp_version_compatible( $required ) {
 	if (
 		defined( 'WP_RUN_CORE_TESTS' )
-		&& WP_RUN_CORE_TESTS
+		&& constant( 'WP_RUN_CORE_TESTS' )
 		&& isset( $GLOBALS['_wp_tests_wp_version'] )
 	) {
 		$wp_version = $GLOBALS['_wp_tests_wp_version'];
